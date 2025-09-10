@@ -1,0 +1,70 @@
+# ===================================================================
+# Файл này được tạo tự động. Bất kỳ thay đổi nào cũng có thể bị ghi đè.
+# Xem https://www.toptal.com/developers/gitignore/api/react,vite,typescript,node,visualstudiocode,pnpm
+# để tạo ra tệp này.
+# ===================================================================
+
+# Cache và siêu dữ liệu
+# -------------------------------------------------------------------
+.turbo/
+*.tsbuildinfo
+
+# Phụ thuộc
+# -------------------------------------------------------------------
+node_modules/
+/node_modules
+/.pnpm-store
+
+# Thư mục xây dựng
+# -------------------------------------------------------------------
+.next/
+out/
+build/
+dist/
+dist-ssr/
+.vite/
+
+# Biến môi trường
+# -------------------------------------------------------------------
+# Bỏ qua tất cả các tệp .env
+.env
+.env.*
+# Ngoại trừ các tệp ví dụ
+!.env.example
+
+# Tệp cục bộ
+# -------------------------------------------------------------------
+*.local
+
+# Tệp log
+# -------------------------------------------------------------------
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Cấu hình IDE và trình soạn thảo
+# -------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Tệp do hệ điều hành tạo ra
+# -------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Báo cáo kiểm thử
+# -------------------------------------------------------------------
+/coverage
+/.nyc_output
