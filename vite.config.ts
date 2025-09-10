@@ -16,4 +16,13 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: "./", // 👈 giúp load asset đúng khi deploy
+  build: {
+    outDir: "dist", // thư mục output
+    emptyOutDir: true, // xóa dist cũ trước khi build
+  },
+  server: {
+    port: 5173, // cổng dev mặc định của Vite
+    open: true, // tự mở trình duyệt khi chạy dev
+  },
 }));
