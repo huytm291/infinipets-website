@@ -1,9 +1,9 @@
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Calendar } from 'lucide-react';
 import { Product } from '@/data/products';
 import { cn } from '@/lib/utils';
-import { useCart } from '../contexts/CartContext'; // Import hook giỏ hàng
-import { toast } from 'sonner'; // Import toast để thông báo
-import { useNavigate } from 'react-router-dom'; // Import hook điều hướng
+import { useCart } from '../contexts/CartContext';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -17,7 +17,7 @@ export default function ProductCard({ product, onFavorite, isFavorited, classNam
   const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Ngăn không cho sự kiện click lan ra thẻ cha
+    e.stopPropagation();
     addToCart(product);
     toast.success(`${product.name} has been added to your cart!`, {
       action: {
@@ -31,48 +31,75 @@ export default function ProductCard({ product, onFavorite, isFavorited, classNam
     navigate(`/product/${product.id}`);
   };
 
+  // Format ngày tạo sản phẩm (nếu có)
+  const formattedDate = product.created_at
+    ? new Date(product.created_at).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : null;
+
   return (
-    <div 
+    <div
       onClick={handleCardClick}
-      className={cn('group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer', className)}
+      className={cn(
+        'group relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500 transform hover:-translate-y-2 cursor-pointer bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-900',
+        className
+      )}
     >
-      <div className="aspect-square overflow-hidden">
+      {/* Image container */}
+      <div className="aspect-square overflow-hidden rounded-t-3xl relative">
         <img
           src={product.images[0]}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+          loading="lazy"
+          draggable={false}
         />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      
-      <div className="absolute top-3 right-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onFavorite(product.id);
-          }}
-          className={cn(
-            'p-2 rounded-full bg-white/20 backdrop-blur-sm transition-colors',
-            isFavorited ? 'text-red-500' : 'text-white'
-          )}
-        >
-          <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
-        </button>
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-        <h3 className="font-bold text-lg truncate">{product.name}</h3>
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-xl font-semibold">€{product.price}</p>
-          <button 
+      {/* Favorite button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onFavorite(product.id);
+        }}
+        aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+        className={cn(
+          'absolute top-4 right-4 p-3 rounded-full bg-white/20 backdrop-blur-md shadow-md transition-colors duration-300 hover:bg-[#14b8a6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] z-20',
+          isFavorited ? 'text-[#14b8a6]' : 'text-white'
+        )}
+      >
+        <Heart size={22} fill={isFavorited ? 'currentColor' : 'none'} strokeWidth={2} />
+      </button>
+
+      {/* Content */}
+      <div className="p-5 bg-gradient-to-b from-transparent to-black/80 rounded-b-3xl text-white relative z-10">
+        <h3 className="font-extrabold text-lg truncate">{product.name}</h3>
+
+        {/* Ngày tạo sản phẩm */}
+        {formattedDate && (
+          <div className="flex items-center text-sm text-gray-300 mt-1 space-x-1 select-none">
+            <Calendar size={14} />
+            <span>{formattedDate}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-2xl font-bold tracking-wide">€{product.price.toFixed(2)}</p>
+
+          <button
             onClick={handleAddToCart}
-            className="p-2 rounded-full bg-teal-500 hover:bg-teal-400 transition-colors transform group-hover:opacity-100 group-hover:translate-x-0 opacity-0 -translate-x-4 duration-300"
+            aria-label="Add to cart"
+            className="p-3 rounded-full bg-gradient-to-r from-[#14b8a6] to-[#4ade80] shadow-lg hover:from-[#0f8f8a] hover:to-[#3ac66a] transition-transform transform scale-90 group-hover:scale-100 focus:outline-none focus:ring-4 focus:ring-[#4ade80]/60"
           >
-            <ShoppingBag size={20} />
+            <ShoppingBag size={22} />
           </button>
         </div>
       </div>
     </div>
   );
 }
-
