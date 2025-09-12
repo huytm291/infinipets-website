@@ -2,16 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion'; 
 
 export default function Footer() {
-    // Dữ liệu cho các social icons, bạn có thể thay đổi đường dẫn ảnh trong thư mục public
+    // Dữ liệu cho các social icons, đường dẫn ảnh từ public/images/social-icons/
     const socialLinks = [
-        { name: 'Facebook', icon: 'social-icons/facebook.png', url: 'public/images/socialicon/facebook.png' },
-        { name: 'Instagram', icon: '/social-icons/instagram.png', url: 'public/images/socialicon/instagram.png' },
-        { name: 'Twitter', icon: '/social-icons/twitter.png', url: 'public/images/socialicon/twitter.png' },
-        { name: 'Whatsapp', icon: '/social-icons/whatsapp.png', url: 'public/images/socialicon/whatsapp.png' },
+        { name: 'Facebook', icon: '/images/social-icons/facebook.png', url: '#' },
+        { name: 'Instagram', icon: '/images/social-icons/instagram.png', url: '#' },
+        { name: 'Twitter', icon: '/images/social-icons/twitter.png', url: '#' },
+        { name: 'Whatsapp', icon: '/images/social-icons/whatsapp.png', url: '#' },
     ];
 
     return (
-        // Thay đổi màu nền chính của footer thành màu đen hoặc xám rất đậm
         <footer className="bg-gray-950 text-white relative overflow-hidden py-16 md:py-20">
             {/* Background animation layer - Tái tạo hiệu ứng footerGradient */}
             <div className="absolute inset-0 z-0">
@@ -114,7 +113,6 @@ export default function Footer() {
                 </div>
 
                 {/* Footer Bottom */}
-                {/* Điều chỉnh màu viền và màu chữ cho nền đen */}
                 <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
                     <p>&copy; 2024 INFINIPETS. All rights reserved. | Privacy Policy | Terms of Service</p>
                 </div>

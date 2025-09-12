@@ -10,6 +10,7 @@ export default function NewsletterSection({ isDarkMode, onSubscribe }: Newslette
   const [email, setEmail] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [envelopes, setEnvelopes] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,14 +18,16 @@ export default function NewsletterSection({ isDarkMode, onSubscribe }: Newslette
 
     setIsSubscribing(true);
     
-    // Hiệu ứng lá thư bay lên từ index.html
+    // Hiệu ứng lá thư bay lên
     createEnvelopeAnimation(e.currentTarget as HTMLFormElement);
     
     try {
       await onSubscribe(email);
       setEmail('');
+      setShowWelcomePopup(true); // Hiện popup chào mừng
     } catch (error) {
       console.error('Subscription error:', error);
+      // Có thể thêm thông báo lỗi nếu muốn
     } finally {
       setIsSubscribing(false);
     }
@@ -146,6 +149,37 @@ export default function NewsletterSection({ isDarkMode, onSubscribe }: Newslette
             ✉️
           </div>
         ))}
+
+        {/* Popup Welcome */}
+        {showWelcomePopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-[10000]">
+            {/* Overlay mờ nền */}
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+              onClick={() => setShowWelcomePopup(false)}
+            ></div>
+
+            {/* Nội dung popup */}
+            <div className={`relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center ${
+              isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
+            }`}>
+              <h3 className="text-2xl font-semibold mb-4">Welcome to INFINIPETS family!</h3>
+              <p className="mb-6 text-lg">
+                Thank you for subscribing. Stay tuned for exclusive offers and updates.
+              </p>
+              <button
+                onClick={() => setShowWelcomePopup(false)}
+                className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+                  isDarkMode
+                    ? 'bg-[#14b8a6] hover:bg-[#0f8f8a] text-white'
+                    : 'bg-[#4ade80] hover:bg-[#3ac66a] text-white'
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     </>
   );
