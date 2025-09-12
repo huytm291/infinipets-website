@@ -1,7 +1,7 @@
 import { Heart, ShoppingBag, Calendar } from 'lucide-react';
-import { Product } from '@/data/products';
+import { Product } from '@/hooks/useProducts'; 
 import { cn } from '@/lib/utils';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../../contexts/CartContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -40,6 +40,10 @@ export default function ProductCard({ product, onFavorite, isFavorited, classNam
       })
     : null;
 
+  // Xử lý ảnh: Supabase có thể lưu 1 ảnh hoặc mảng ảnh (tuỳ bạn)
+  // Ở đây giả sử product.image_url là string (1 ảnh)
+  const imageUrl = product.image_url || '/default-product-image.jpg'; // ảnh mặc định nếu không có
+
   return (
     <div
       onClick={handleCardClick}
@@ -51,7 +55,7 @@ export default function ProductCard({ product, onFavorite, isFavorited, classNam
       {/* Image container */}
       <div className="aspect-square overflow-hidden rounded-t-3xl relative">
         <img
-          src={product.images[0]}
+          src={imageUrl}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
           loading="lazy"

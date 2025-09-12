@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { Product } from '@/data/products'; // Giả sử bạn có định nghĩa type Product
+import { Product } from '@/data/products'; 
 
 // Định nghĩa kiểu cho một sản phẩm trong giỏ hàng
 export interface CartItem {

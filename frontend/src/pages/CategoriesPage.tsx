@@ -33,6 +33,18 @@ export default function CategoriesPage() {
               }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
               className="group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-3xl transition-shadow duration-400 bg-white dark:bg-gray-800"
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                // Ví dụ: chuyển đến trang danh mục chi tiết
+                window.location.href = `/categories/${category.id}`;
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  window.location.href = `/categories/${category.id}`;
+                }
+              }}
+              aria-label={`View category ${category.name}`}
             >
               <img
                 src={category.image}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, User } from 'lucide-react';
+import { callOpenAIFunction } from '../lib/supabaseClient'; 
 
 interface Message {
   id: number;
@@ -22,20 +23,17 @@ export default function ChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll xuống cuối khi có tin nhắn mới
+  // Scroll xuống cuối khi có tin nhắn mới hoặc mở chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
-
-  // Lấy API key từ biến môi trường (Vite)
-  const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
   // Ref để kiểm soát throttle (giới hạn tần suất gọi API)
   const throttleRef = useRef(false);
   // Ref để lưu timeout debounce
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Hàm thực sự gửi tin nhắn và gọi API
+  // Hàm thực sự gửi tin nhắn và gọi API Edge Function OpenAI
   const sendMessage = async (userMessageText: string) => {
     const userMessage: Message = {
       id: messages.length + 1,
@@ -48,41 +46,11 @@ export default function ChatBot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: "You are a helpful customer support assistant for INFINIPETS, a luxury pet fashion brand. Answer politely and helpfully."
-            },
-            ...messages
-              .filter(m => m.text.trim() !== '')
-              .map(m => ({
-                role: m.isBot ? 'assistant' : 'user',
-                content: m.text,
-              })),
-            { role: 'user', content: userMessageText }
-          ],
-          max_tokens: 500,
-          temperature: 0.7,
-        }),
-      });
+      // Gọi Edge Function OpenAI qua supabaseClient.ts
+      const data = await callOpenAIFunction(userMessageText);
 
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Bạn gửi quá nhiều yêu cầu, vui lòng thử lại sau.');
-        }
-        throw new Error(`OpenAI API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const botText = data.choices?.[0]?.message?.content?.trim() || "Sorry, I couldn't process your request.";
+      // Giả sử Edge Function trả về { result: string }
+      const botText = data.result || "Sorry, I couldn't process your request.";
 
       const botMessage: Message = {
         id: userMessage.id + 1,

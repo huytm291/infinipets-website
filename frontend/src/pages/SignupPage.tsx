@@ -6,12 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-
-// Import reCAPTCHA component
 import ReCAPTCHA from 'react-google-recaptcha';
 
-const RECAPTCHA_SITE_KEY = '6LfXtccrAAAAANX6qR1fs4WsrXD0VCrf_MMy4hpR'; // Thay bằng site key của bạn
-const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha'; 
+const RECAPTCHA_SITE_KEY = '6LfXtccrAAAAANX6qR1fs4WsrXD0VCrf_MMy4hpR'; // 
+const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -25,7 +23,6 @@ const SignupPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Hàm gọi khi submit form
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -51,7 +48,6 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      // Thực thi reCAPTCHA lấy token
       const token = await recaptchaRef.current?.executeAsync();
       recaptchaRef.current?.reset();
 
@@ -61,7 +57,6 @@ const SignupPage = () => {
         return;
       }
 
-      // Gọi Supabase Function verify token reCAPTCHA
       const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,24 +77,25 @@ const SignupPage = () => {
         return;
       }
 
-      // Nếu verify thành công, gọi supabase signUp
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) {
-        setError(error.message);
+      if (signUpError) {
+        setError(signUpError.message);
         setLoading(false);
         return;
       }
 
-      // Giả lập gửi mã xác nhận email (bạn cần backend thực tế)
       setSuccess('Please check your email to verify your account.');
 
-      // Nếu muốn lưu thêm username, phone, bạn cần gọi API backend hoặc supabase function riêng
+      // TODO: Lưu thêm username, phone nếu cần qua API hoặc Supabase function
 
-    } catch (err) {
+      // Optionally navigate or reset form here
+      // navigate('/login');
+
+    } catch {
       setError('An unexpected error occurred.');
     } finally {
       setLoading(false);
@@ -116,23 +112,37 @@ const SignupPage = () => {
       >
         <Card className="shadow-2xl border border-gray-700 rounded-3xl bg-gray-800 bg-opacity-90 backdrop-blur-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-extrabold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-extrabold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent select-none">
               Create an Account
             </CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardDescription className="text-gray-300 select-none">
               Join our community of pet lovers
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
-              <p className="mb-4 text-center text-red-400 font-semibold animate-shake">
+              <motion.p
+                key="error"
+                className="mb-4 text-center text-red-400 font-semibold select-none"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
                 {error}
-              </p>
+              </motion.p>
             )}
             {success && (
-              <p className="mb-4 text-center text-green-400 font-semibold">
+              <motion.p
+                key="success"
+                className="mb-4 text-center text-green-400 font-semibold select-none"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
                 {success}
-              </p>
+              </motion.p>
             )}
             <form onSubmit={handleSignup} className="space-y-6" noValidate>
               {/* Username */}
@@ -144,11 +154,11 @@ const SignupPage = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
                 />
                 <Label
                   htmlFor="username"
-                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
                 >
                   Username
                 </Label>
@@ -164,11 +174,11 @@ const SignupPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
                 />
                 <Label
                   htmlFor="email"
-                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
                 >
                   Email
                 </Label>
@@ -183,11 +193,11 @@ const SignupPage = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="tel"
-                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
                 />
                 <Label
                   htmlFor="phone"
-                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
                 >
                   Phone (optional)
                 </Label>
@@ -204,15 +214,15 @@ const SignupPage = () => {
                   required
                   minLength={6}
                   autoComplete="new-password"
-                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+                  className="peer bg-gray-700 bg-opacity-60 text-white placeholder-transparent rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
                 />
                 <Label
                   htmlFor="password"
-                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+                  className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
                 >
                   Password
                 </Label>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 mt-1 select-none">
                   Password must be at least 6 characters long.
                 </p>
               </div>
@@ -227,7 +237,8 @@ const SignupPage = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 select-none"
+                aria-busy={loading}
               >
                 {loading ? (
                   <>
@@ -236,6 +247,7 @@ const SignupPage = () => {
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <circle
                         className="opacity-25"
@@ -258,11 +270,11 @@ const SignupPage = () => {
                 )}
               </Button>
             </form>
-            <p className="mt-6 text-center text-sm text-gray-400">
+            <p className="mt-6 text-center text-sm text-gray-400 select-none">
               Already have an account?{' '}
               <a
                 href="/login"
-                className="font-semibold text-green-500 hover:underline"
+                className="font-semibold text-green-500 hover:underline focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
               >
                 Log in
               </a>
@@ -271,7 +283,6 @@ const SignupPage = () => {
         </Card>
       </motion.div>
 
-      {/* Animation shake for error */}
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }

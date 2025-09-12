@@ -1,129 +1,147 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 
-export default function FeedbackForm() {
-  const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
+interface FeedbackFormProps {
+  productId: string;
+  onAddFeedback: (rating: number, comment: string, email: string) => Promise<boolean>;
+}
+
+const FeedbackForm: React.FC<FeedbackFormProps> = ({ productId, onAddFeedback }) => {
   const [rating, setRating] = useState(5);
-  const [text, setText] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const isValid = name.trim() && text.trim() && rating > 0;
+  const [comment, setComment] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) {
-      toast.error('Please fill in all required fields and provide a rating.');
+    setError(null);
+    setSuccess(false);
+    setLoading(true);
+
+    if (!email.trim() || !comment.trim()) {
+      setError('Please fill in all fields.');
+      setLoading(false);
       return;
     }
-    setSubmitting(true);
 
-    // Giả lập gửi dữ liệu lên backend (Supabase hoặc API)
-    try {
-      // await api.post('/feedbacks', { name, location, rating, text });
-      await new Promise((r) => setTimeout(r, 1500)); // giả lập delay
-
-      toast.success('Thank you for your feedback!');
-      setName('');
-      setLocation('');
+    const isSuccess = await onAddFeedback(rating, comment, email);
+    if (isSuccess) {
+      setSuccess(true);
       setRating(5);
-      setText('');
-    } catch (error) {
-      toast.error('Failed to submit feedback. Please try again later.');
-    } finally {
-      setSubmitting(false);
+      setComment('');
+      setEmail('');
+    } else {
+      setError('Failed to submit feedback. Please try again.');
     }
+    setLoading(false);
   };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      className="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-    >
-      <h3 className="text-2xl font-extrabold mb-6 bg-gradient-to-r from-[#14b8a6] to-[#4ade80] bg-clip-text text-transparent select-none">
-        Leave Your Feedback
-      </h3>
-
-      <div className="mb-4">
-        <Label htmlFor="name" className="font-semibold text-gray-800 dark:text-gray-200">
-          Name <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your full name"
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto font-inter">
+      {/* Email input with floating label */}
+      <div className="relative">
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
-          disabled={submitting}
-          className="border-gray-300 dark:border-gray-600 focus:border-[#14b8a6] dark:focus:border-[#4ade80] focus:ring-1 focus:ring-[#14b8a6] dark:focus:ring-[#4ade80]"
+          placeholder="Your email"
+          className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white px-5 pt-6 pb-2 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
         />
+        <label
+          htmlFor="email"
+          className="absolute left-5 top-2 text-gray-400 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
+        >
+          Your Email
+        </label>
       </div>
 
-      <div className="mb-4">
-        <Label htmlFor="location" className="font-semibold text-gray-800 dark:text-gray-200">
-          Location
-        </Label>
-        <Input
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="City, Country (optional)"
-          disabled={submitting}
-          className="border-gray-300 dark:border-gray-600 focus:border-[#14b8a6] dark:focus:border-[#4ade80] focus:ring-1 focus:ring-[#14b8a6] dark:focus:ring-[#4ade80]"
-        />
-      </div>
-
-      <div className="mb-4">
-        <Label htmlFor="rating" className="font-semibold text-gray-800 dark:text-gray-200">
-          Rating <span className="text-red-500">*</span>
-        </Label>
+      {/* Rating select with floating label */}
+      <div className="relative">
         <select
           id="rating"
           value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
-          disabled={submitting}
-          className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#14b8a6] dark:focus:ring-[#4ade80] text-gray-900 dark:text-gray-100"
-          required
+          className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white px-5 pt-6 pb-2 appearance-none placeholder-transparent focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
         >
-          {[5,4,3,2,1].map((r) => (
+          {[5, 4, 3, 2, 1].map((r) => (
             <option key={r} value={r}>
               {r} Star{r > 1 ? 's' : ''}
             </option>
           ))}
         </select>
+        <label
+          htmlFor="rating"
+          className="absolute left-5 top-2 text-gray-400 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
+        >
+          Rating
+        </label>
+        {/* Custom arrow for select */}
+        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white">
+          ▼
+        </div>
       </div>
 
-      <div className="mb-6">
-        <Label htmlFor="text" className="font-semibold text-gray-800 dark:text-gray-200">
-          Feedback <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write your feedback here..."
-          rows={5}
+      {/* Comment textarea with floating label */}
+      <div className="relative">
+        <textarea
+          id="comment"
+          rows={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
           required
-          disabled={submitting}
-          className="border-gray-300 dark:border-gray-600 focus:border-[#14b8a6] dark:focus:border-[#4ade80] focus:ring-1 focus:ring-[#14b8a6] dark:focus:ring-[#4ade80]"
+          placeholder="Write your feedback here..."
+          className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white px-5 pt-6 pb-2 placeholder-transparent resize-none focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-900 focus:bg-gray-600 transition duration-300 shadow-md"
         />
+        <label
+          htmlFor="comment"
+          className="absolute left-5 top-2 text-gray-400 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-green-400 peer-focus:text-sm cursor-text select-none pointer-events-none transform-gpu will-change-transform"
+        >
+          Comment
+        </label>
       </div>
 
-      <Button
+      {/* Error and success messages */}
+      {error && <p className="text-red-600 font-semibold select-none">{error}</p>}
+      {success && <p className="text-green-600 font-semibold select-none">Thank you for your feedback!</p>}
+
+      {/* Submit button */}
+      <button
         type="submit"
-        disabled={!isValid || submitting}
-        className="w-full bg-gradient-to-r from-[#14b8a6] to-[#4ade80] font-bold text-lg shadow-lg hover:from-[#0f8f8a] hover:to-[#3ac66a] transition-transform transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
+        disabled={loading}
+        className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed select-none"
+        aria-busy={loading}
       >
-        {submitting ? 'Submitting...' : 'Submit Feedback'}
-      </Button>
-    </motion.form>
+        {loading ? (
+          <svg
+            className="animate-spin h-6 w-6 mx-auto text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            ></path>
+          </svg>
+        ) : (
+          'Submit Feedback'
+        )}
+      </button>
+    </form>
   );
-}
+};
+
+export default FeedbackForm;

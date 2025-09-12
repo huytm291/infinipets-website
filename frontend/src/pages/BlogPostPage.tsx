@@ -1,23 +1,59 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { posts, Post } from '@/data/posts';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover_image_url: string;
+  published_at: string;
+}
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<Post | null>(null);
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (slug) {
-      const found = posts.find((p) => p.slug === slug);
-      setPost(found || null);
+    async function fetchPost() {
+      if (!slug) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('id, title, slug, excerpt, content, cover_image_url, published_at')
+          .eq('slug', slug)
+          .single();
+
+        if (error) throw error;
+        setPost(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load post');
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchPost();
   }, [slug]);
 
-  if (!post) {
+  if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <p className="text-xl text-gray-700 dark:text-gray-300">Post not found.</p>
+        <p className="text-gray-700 dark:text-gray-300">Loading post...</p>
+      </main>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <p className="text-xl text-red-600 dark:text-red-400">{error || 'Post not found.'}</p>
       </main>
     );
   }
@@ -33,13 +69,14 @@ export default function BlogPostPage() {
         >
           <h1 className="font-coiny text-5xl mb-6">{post.title}</h1>
           <img
-            src={post.coverImage}
+            src={post.cover_image_url}
             alt={post.title}
             className="w-full rounded-2xl mb-8 object-cover max-h-96"
             draggable={false}
           />
           <p>{post.excerpt}</p>
-          {/* Bạn có thể thêm nội dung chi tiết hơn ở đây */}
+          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          {/* Nếu bạn lưu nội dung bài viết dạng HTML */}
         </motion.article>
       </div>
     </main>

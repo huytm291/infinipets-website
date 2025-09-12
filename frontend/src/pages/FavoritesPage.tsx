@@ -1,13 +1,13 @@
 import { useFavorites } from '@/contexts/FavoritesContext';
-import ProductCard from '@/components/ProductCard';
+import ProductCard from '@/components/products/ProductCard';
 import { motion } from 'framer-motion';
-import { featuredProducts } from '@/data/products';
+import { products } from '@/data/products';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
 
-  // Lọc sản phẩm yêu thích từ danh sách featuredProducts (hoặc fetch từ backend)
-  const favoriteProducts = featuredProducts.filter((p) => favorites.has(p.id));
+  // Lọc sản phẩm yêu thích từ danh sách products
+  const favoriteProducts = products.filter((p) => favorites.has(p.id));
 
   return (
     <main className="min-h-screen py-16 bg-gray-50 dark:bg-gray-900">

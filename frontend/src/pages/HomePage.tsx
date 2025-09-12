@@ -1,14 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, ArrowRight, Play } from 'lucide-react';
-import ProductCard from '@/components/ProductCard';
+import ProductCard from '@/components/products/ProductCard';
 import ChatBot from '@/components/ChatBot';
 import LoadingScreen from '@/components/LoadingScreen';
 import { categories, featuredProducts } from '@/data/products';
 import NewsletterSection from '@/components/NewsletterSection';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
+
+  // Testimonials state
+  const [testimonials, setTestimonials] = useState<
+    {
+      id: number;
+      name: string;
+      location: string;
+      text: string;
+      rating: number;
+      image: string;
+    }[]
+  >([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const [errorTestimonials, setErrorTestimonials] = useState<string | null>(null);
+
+  // Fetch testimonials from Supabase
+  useEffect(() => {
+    async function fetchTestimonials() {
+      setLoadingTestimonials(true);
+      setErrorTestimonials(null);
+      try {
+        const { data, error } = await supabase
+          .from('testimonials')
+          .select('id, name, location, text, rating, image_url')
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        const mapped = (data || []).map((item) => ({
+          id: item.id,
+          name: item.name,
+          location: item.location,
+          text: item.text,
+          rating: item.rating,
+          image: item.image_url,
+        }));
+
+        setTestimonials(mapped);
+      } catch (err: any) {
+        setErrorTestimonials(err.message || 'Failed to load testimonials');
+      } finally {
+        setLoadingTestimonials(false);
+      }
+    }
+
+    fetchTestimonials();
+  }, []);
 
   const handleFavorite = (productId: string) => {
     console.log(`Toggled favorite for product: ${productId}`);
@@ -17,33 +65,6 @@ export default function HomePage() {
   if (isLoading) {
     return <LoadingScreen onLoadComplete={() => setIsLoading(false)} />;
   }
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Sarah & Luna",
-      location: "Berlin, Germany",
-      text: "Luna looks absolutely stunning in her Forest Explorer set! The quality is exceptional and the fit is perfect. We get compliments everywhere we go! 🐕✨",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      id: 2,
-      name: "Marco & Bella",
-      location: "Milan, Italy",
-      text: "The handmade sweater is incredibly soft and warm. Bella loves wearing it during our morning walks. INFINIPETS truly understands pet fashion! 🧶❤️",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      id: 3,
-      name: "Emma & Max",
-      location: "Amsterdam, Netherlands",
-      text: "Max's superhero cape makes him the star of the dog park! The attention to detail and comfort is amazing. Highly recommend! 🦸‍♂️🐾",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=100&h=100&fit=crop&crop=face"
-    },
-  ];
 
   return (
     <div>
@@ -69,7 +90,7 @@ export default function HomePage() {
             transition={{ duration: 1, ease: 'easeOut' }}
             className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight select-none drop-shadow-lg"
           >
-            Luxury Fashion for You & Your Pet
+            Luxury Fashion for You &amp; Your Pet
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -179,7 +200,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Products Section */}
       <section className="py-24 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto max-w-7xl px-6">
           <div className="text-center mb-20">
@@ -228,7 +249,7 @@ export default function HomePage() {
                 <ProductCard
                   product={product}
                   onFavorite={handleFavorite}
-                  isFavorited={false} // Sẽ cập nhật sau
+                  isFavorited={false}
                   className="shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-2xl"
                 />
               </motion.div>
@@ -260,58 +281,68 @@ export default function HomePage() {
               See what pet parents are saying about their INFINIPETS experience
             </motion.p>
           </div>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              visible: {
-                transition: {
-                  staggerChildren: 0.18,
+
+          {loadingTestimonials && (
+            <p className="text-center text-gray-600 dark:text-gray-400">Loading testimonials...</p>
+          )}
+
+          {errorTestimonials && (
+            <p className="text-center text-red-600 dark:text-red-400">{errorTestimonials}</p>
+          )}
+
+          {!loadingTestimonials && !errorTestimonials && (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-3 gap-10"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.18,
+                  },
                 },
-              },
-            }}
-          >
-            {testimonials.map((testimonial) => (
-              <motion.div
-                key={testimonial.id}
-                variants={{
-                  hidden: { opacity: 0, y: 30, scale: 0.95 },
-                  visible: { opacity: 1, y: 0, scale: 1 },
-                }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="rounded-3xl p-8 shadow-2xl bg-white dark:bg-gray-800 flex flex-col"
-              >
-                <div className="flex items-center space-x-3 mb-6">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-14 h-14 rounded-full object-cover select-none"
-                    draggable={false}
-                  />
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.location}</p>
+              }}
+            >
+              {testimonials.map((testimonial) => (
+                <motion.div
+                  key={testimonial.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                    visible: { opacity: 1, y: 0, scale: 1 },
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="rounded-3xl p-8 shadow-2xl bg-white dark:bg-gray-800 flex flex-col"
+                >
+                  <div className="flex items-center space-x-3 mb-6">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-14 h-14 rounded-full object-cover select-none"
+                      draggable={false}
+                    />
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.location}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-1 mb-6">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} size={18} className="text-[#14b8a6] fill-current" />
-                  ))}
-                </div>
-                <p className="flex-grow text-gray-700 dark:text-gray-300 italic text-lg leading-relaxed">
-                  "{testimonial.text}"
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
+                  <div className="flex items-center space-x-1 mb-6">
+                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                      <Star key={i} size={18} className="text-[#14b8a6] fill-current" />
+                    ))}
+                  </div>
+                  <p className="flex-grow text-gray-700 dark:text-gray-300 italic text-lg leading-relaxed">
+                    "{testimonial.text}"
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
       <NewsletterSection />
-
       <ChatBot />
     </div>
   );

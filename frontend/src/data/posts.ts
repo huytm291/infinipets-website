@@ -1,38 +1,66 @@
 export interface Post {
   id: string;
   title: string;
-  excerpt: string;
-  coverImage: string;
-  publishedAt: string;
   slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  publishedAt: string; // ISO date string
+  coverImage: string;
+  tags?: string[];
 }
 
 export const posts: Post[] = [
   {
     id: '1',
-    title: 'The Ultimate Guide to Luxury Pet Fashion',
-    excerpt:
-      'Discover the latest trends and tips to keep your pet stylish and comfortable with our ultimate guide to luxury pet fashion.',
-    coverImage: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
-    publishedAt: '2024-05-01T10:00:00Z',
-    slug: 'ultimate-guide-luxury-pet-fashion',
+    title: 'Getting Started with Our Product',
+    slug: 'getting-started-with-our-product',
+    excerpt: 'Learn how to quickly get started with our product and make the most out of its features.',
+    content: `
+      <p>Welcome to our product! This guide will help you get started quickly and easily.</p>
+      <h2>Installation</h2>
+      <p>First, install the product by following these steps...</p>
+      <h2>Basic Usage</h2>
+      <p>Once installed, you can start by...</p>
+    `,
+    author: 'Jane Doe',
+    publishedAt: '2023-08-01T10:00:00Z',
+    coverImage: '/images/posts/getting-started.jpg',
+    tags: ['Getting Started', 'Tutorial', 'Product'],
   },
   {
     id: '2',
-    title: 'How to Choose the Perfect Outfit for Your Pet',
-    excerpt:
-      'Choosing the right outfit for your pet can be tricky. Learn how to pick styles that suit your pet’s personality and needs.',
-    coverImage: 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=80',
-    publishedAt: '2024-04-15T12:00:00Z',
-    slug: 'choose-perfect-outfit-pet',
+    title: 'Tips and Tricks for Advanced Users',
+    slug: 'tips-and-tricks-for-advanced-users',
+    excerpt: 'Explore advanced tips and tricks to enhance your productivity and workflow.',
+    content: `
+      <p>For advanced users, here are some tips to get the most out of our product.</p>
+      <ul>
+        <li>Customize your settings for better performance.</li>
+        <li>Use keyboard shortcuts to speed up your work.</li>
+        <li>Integrate with other tools you use daily.</li>
+      </ul>
+    `,
+    author: 'John Smith',
+    publishedAt: '2023-08-15T14:30:00Z',
+    coverImage: '/images/posts/advanced-tips.jpg',
+    tags: ['Advanced', 'Tips', 'Productivity'],
   },
   {
     id: '3',
-    title: 'Sustainable Pet Fashion: Eco-Friendly Choices',
-    excerpt:
-      'Explore sustainable and eco-friendly pet fashion options that help protect the planet while keeping your pet trendy.',
-    coverImage: 'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&w=800&q=80',
-    publishedAt: '2024-03-20T09:30:00Z',
-    slug: 'sustainable-pet-fashion',
+    title: 'Upcoming Features and Roadmap',
+    slug: 'upcoming-features-and-roadmap',
+    excerpt: 'Get a sneak peek at the upcoming features and our development roadmap.',
+    content: `
+      <p>We are excited to share what’s coming next for our product.</p>
+      <h2>New Features</h2>
+      <p>We plan to introduce...</p>
+      <h2>Roadmap</h2>
+      <p>Our roadmap includes...</p>
+    `,
+    author: 'Jane Doe',
+    publishedAt: '2023-09-01T09:00:00Z',
+    coverImage: '/images/posts/roadmap.jpg',
+    tags: ['Roadmap', 'Features', 'Updates'],
   },
 ];
