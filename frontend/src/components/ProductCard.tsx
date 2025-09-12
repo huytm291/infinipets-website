@@ -17,15 +17,22 @@ const ProductCard = ({ product, onFavorite, isFavorited }: ProductCardProps) => 
     e.stopPropagation();
     onFavorite(product.id);
     
+    // Hiệu ứng heartBeat từ index.html
+    const heartButton = e.currentTarget as HTMLElement;
+    heartButton.style.animation = 'heartBeat 0.8s ease';
+    
     // Create sparkle effect
-    const newSparkles = Array.from({ length: 6 }, (_, i) => ({
+    const newSparkles = Array.from({ length: 8 }, (_, i) => ({
       id: Date.now() + i,
-      x: Math.random() * 40 - 20,
-      y: Math.random() * 40 - 20,
+      x: Math.random() * 60 - 30,
+      y: Math.random() * 60 - 30,
     }));
     
     setSparkles(newSparkles);
-    setTimeout(() => setSparkles([]), 600);
+    setTimeout(() => {
+      setSparkles([]);
+      heartButton.style.animation = '';
+    }, 800);
   };
 
   const renderStars = (rating: number) => {
@@ -44,6 +51,35 @@ const ProductCard = ({ product, onFavorite, isFavorited }: ProductCardProps) => 
 
   return (
     <>
+      <style jsx>{`
+        @keyframes heartBeat {
+          0% { transform: scale(1); }
+          14% { transform: scale(1.3); }
+          28% { transform: scale(1); }
+          42% { transform: scale(1.3); }
+          70% { transform: scale(1); }
+        }
+        
+        @keyframes sparkleFloat {
+          0% {
+            opacity: 0;
+            transform: translate(0, 0) scale(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translate(var(--x), var(--y)) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translate(calc(var(--x) * 1.5), calc(var(--y) * 1.5)) scale(0);
+          }
+        }
+        
+        .sparkle {
+          animation: sparkleFloat 0.8s ease-out forwards;
+        }
+      `}</style>
+      
       <div 
         className="group relative bg-white rounded-xl shadow-sm hover-lift card-hover overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
@@ -86,14 +122,17 @@ const ProductCard = ({ product, onFavorite, isFavorited }: ProductCardProps) => 
             )}
           </div>
 
-          {/* Favorite Button */}
+          {/* Favorite Button với hiệu ứng từ index.html */}
           <button
             onClick={handleFavoriteClick}
-            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 ${
+            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-400 transform hover:scale-120 hover:rotate-15 ${
               isFavorited 
-                ? 'bg-pink-500 text-white' 
-                : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white'
+                ? 'bg-red-400 text-white shadow-lg' 
+                : 'bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-red-400 hover:text-white'
             }`}
+            style={{
+              boxShadow: isFavorited ? '0 8px 25px rgba(255, 106, 106, 0.6)' : '0 4px 15px rgba(0,0,0,0.1)'
+            }}
           >
             <Heart 
               size={18} 
@@ -105,12 +144,13 @@ const ProductCard = ({ product, onFavorite, isFavorited }: ProductCardProps) => 
           {sparkles.map((sparkle) => (
             <div
               key={sparkle.id}
-              className="absolute top-3 right-3 pointer-events-none"
+              className="absolute top-3 right-3 pointer-events-none sparkle"
               style={{
-                transform: `translate(${sparkle.x}px, ${sparkle.y}px)`,
-              }}
+                '--x': `${sparkle.x}px`,
+                '--y': `${sparkle.y}px`,
+              } as React.CSSProperties}
             >
-              <div className="text-pink-400 sparkle">✨</div>
+              <div className="text-red-400 text-lg">✨</div>
             </div>
           ))}
         </div>
