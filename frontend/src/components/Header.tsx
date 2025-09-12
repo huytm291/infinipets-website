@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, User, Heart, ShoppingCart, Menu, Sun, Moon, ChevronDown } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"; // Đảm bảo đường dẫn đúng
+import SearchCommand, { SearchResult } from '@/components/SearchCommand'; // Import SearchCommand
 
 interface HeaderProps {
   favoriteCount: number;
@@ -24,6 +25,8 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth(); // Lấy thông tin người dùng và hàm signOut
+
+  const searchCommandRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,6 +73,24 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
     );
   };
 
+  // Demo hàm tìm kiếm cho SearchCommand (bạn thay bằng API thực tế)
+  const handleSearch = async (query: string): Promise<SearchResult[]> => {
+    const data: SearchResult[] = [
+      { id: '1', title: 'Luxury Pet Sweaters', description: 'Warm and stylish' },
+      { id: '2', title: 'Forest Explorer Set', description: 'Perfect for adventures' },
+      { id: '3', title: 'Superhero Capes', description: 'Make your pet a hero' },
+    ];
+    return data.filter((item) =>
+      item.title.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const handleSelect = (item: SearchResult) => {
+    // Ví dụ chuyển trang hoặc xử lý khi chọn kết quả
+    alert(`Selected: ${item.title}`);
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 ease-in-out ${isScrolled ? (isDarkMode ? 'bg-gray-900/90 backdrop-blur-lg shadow-xl border-b border-gray-700' : 'bg-white/90 backdrop-blur-lg shadow-xl border-b border-gray-200') : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,6 +114,11 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                 {link.name}
               </NavLinkEffect>
             ))}
+
+            {/* Thêm SearchCommand vào desktop nav */}
+            <div className="w-64 ml-4" ref={searchCommandRef}>
+              <SearchCommand onSearch={handleSearch} onSelect={handleSelect} placeholder="Search products, blog..." />
+            </div>
           </nav>
 
           {/* Actions */}
@@ -113,7 +139,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </div>
 
-            {/* Search Icon */}
+            {/* Search Icon (giữ nguyên, bạn có thể dùng để mở modal search nếu muốn) */}
             <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
               <Search size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
             </button>
@@ -201,6 +227,11 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                   {link.name}
                 </a>
               ))}
+
+              {/* Thêm SearchCommand vào mobile menu */}
+              <div className="mt-4">
+                <SearchCommand onSearch={handleSearch} onSelect={handleSelect} placeholder="Search..." />
+              </div>
             </div>
           </motion.div>
         )}
