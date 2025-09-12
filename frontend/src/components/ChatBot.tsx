@@ -27,7 +27,10 @@ export default function ChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || process.env.REACT_APP_OPENAI_API_KEY;
+  const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+if (!OPENAI_API_KEY) {
+  console.error('OpenAI API key is not defined! Please check your environment variables.');
+}
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
