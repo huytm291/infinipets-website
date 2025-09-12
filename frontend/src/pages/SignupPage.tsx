@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 const RECAPTCHA_SITE_KEY = 'YOUR_RECAPTCHA_SITE_KEY'; // Thay bằng site key của bạn
+const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://<project-ref>.functions.supabase.co/verify-recaptcha'; // Thay bằng URL function của bạn
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      // Thực thi reCAPTCHA
+      // Thực thi reCAPTCHA lấy token
       const token = await recaptchaRef.current?.executeAsync();
       recaptchaRef.current?.reset();
 
@@ -60,8 +61,28 @@ const SignupPage = () => {
         return;
       }
 
-      // TODO: Gửi token reCAPTCHA kèm dữ liệu lên backend để verify và tạo user
-      // Ở đây demo dùng supabase signUp (chưa có username, phone, reCAPTCHA verify backend)
+      // Gọi Supabase Function verify token reCAPTCHA
+      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!verifyResponse.ok) {
+        setError('Failed to verify reCAPTCHA. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        setError('reCAPTCHA verification failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Nếu verify thành công, gọi supabase signUp
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
