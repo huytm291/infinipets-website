@@ -20,7 +20,7 @@ export default function LoginPage() {
       <form
         onSubmit={handleSubmit}
         className="bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-3xl shadow-2xl max-w-md w-full p-10 space-y-8 animate-fade-slide-up"
-        style={{ fontFamily: "'Inter', sans-serif" }} // Giữ font chữ cũ nếu bạn dùng Inter
+        style={{ fontFamily: "'Inter', sans-serif" }}
       >
         <h2 className="text-4xl font-extrabold text-white text-center mb-6 tracking-tight">
           Đăng nhập
@@ -36,11 +36,11 @@ export default function LoginPage() {
             required
             autoComplete="email"
             placeholder="Email"
-            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-gray-600 transition duration-300 shadow-md"
+            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
           />
           <label
             htmlFor="email"
-            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-pink-500 peer-focus:text-sm cursor-text select-none"
+            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
           >
             Email
           </label>
@@ -56,11 +56,11 @@ export default function LoginPage() {
             required
             autoComplete="current-password"
             placeholder="Mật khẩu"
-            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-gray-600 transition duration-300 shadow-md"
+            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
           />
           <label
             htmlFor="password"
-            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-pink-500 peer-focus:text-sm cursor-text select-none"
+            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
           >
             Mật khẩu
           </label>
@@ -70,7 +70,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-pink-600 text-white font-semibold text-lg shadow-lg hover:from-pink-600 hover:to-pink-700 focus:outline-none focus:ring-4 focus:ring-pink-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <svg
@@ -97,9 +97,19 @@ export default function LoginPage() {
             'Đăng nhập'
           )}
         </button>
+
+        {/* Link đăng ký */}
+        <p className="text-center text-gray-300">
+          Chưa có tài khoản?{' '}
+          <a
+            href="/signup"
+            className="font-semibold text-green-500 hover:underline"
+          >
+            Đăng ký ngay
+          </a>
+        </p>
       </form>
 
-      {/* Animation styles */}
       <style>{`
         @keyframes fadeSlideUp {
           0% {
