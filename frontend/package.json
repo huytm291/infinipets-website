@@ -1,0 +1,38 @@
+ {
+  "name": "infinipets-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "INFINIPETS - Infinite Styles for Infinite Personalities. Premium pet fashion and accessories frontend built with React, Vite, TypeScript and Supabase.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint './src/**/*.{ts,tsx}' --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.35.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react-swc": "^3.1.0",
+    "eslint": "^8.44.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-react": "^7.32.2",
+    "typescript": "^5.8.3",
+    "vite": "^4.4.9"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "typescript"
+      ]
+    }
+  }
+}
