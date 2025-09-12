@@ -27,28 +27,27 @@ export default function ChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
+  // Lấy API key từ biến môi trường (Vite)
   const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-if (!OPENAI_API_KEY) {
-  console.error('OpenAI API key is not defined! Please check your environment variables.');
-}
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputMessage.trim() || isLoading) return;
+  // Ref để kiểm soát throttle (giới hạn tần suất gọi API)
+  const throttleRef = useRef(false);
+  // Ref để lưu timeout debounce
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Hàm thực sự gửi tin nhắn và gọi API
+  const sendMessage = async (userMessageText: string) => {
     const userMessage: Message = {
       id: messages.length + 1,
-      text: inputMessage.trim(),
+      text: userMessageText,
       isBot: false,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
     setIsLoading(true);
 
     try {
-      // Gọi API OpenAI Chat Completion
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -68,7 +67,7 @@ if (!OPENAI_API_KEY) {
                 role: m.isBot ? 'assistant' : 'user',
                 content: m.text,
               })),
-            { role: 'user', content: userMessage.text }
+            { role: 'user', content: userMessageText }
           ],
           max_tokens: 500,
           temperature: 0.7,
@@ -76,6 +75,9 @@ if (!OPENAI_API_KEY) {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Bạn gửi quá nhiều yêu cầu, vui lòng thử lại sau.');
+        }
         throw new Error(`OpenAI API error: ${response.statusText}`);
       }
 
@@ -90,11 +92,11 @@ if (!OPENAI_API_KEY) {
       };
 
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       const errorMessage: Message = {
         id: messages.length + 1,
-        text: "Oops! Something went wrong. Please try again later.",
+        text: error.message || "Oops! Something went wrong. Please try again later.",
         isBot: true,
         timestamp: new Date()
       };
@@ -104,9 +106,40 @@ if (!OPENAI_API_KEY) {
     }
   };
 
+  // Hàm xử lý gửi tin nhắn với debounce + throttle
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedMessage = inputMessage.trim();
+    if (!trimmedMessage || isLoading) return;
+
+    // Nếu đang throttle (đang chờ), không gửi nữa
+    if (throttleRef.current) {
+      console.log('Bạn đang gửi quá nhanh, vui lòng đợi.');
+      return;
+    }
+
+    // Clear debounce timeout nếu có
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Đặt debounce timeout 500ms
+    debounceTimeoutRef.current = setTimeout(() => {
+      // Bật throttle: không cho gọi API trong 2 giây tới
+      throttleRef.current = true;
+      setTimeout(() => {
+        throttleRef.current = false;
+      }, 2000);
+
+      // Gửi tin nhắn
+      sendMessage(trimmedMessage);
+      setInputMessage('');
+    }, 500);
+  };
+
   return (
     <>
-      {/* Chat Button - Teal-green gradient */}
+      {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 z-50 group bg-gradient-to-r from-teal-500 to-green-400 text-white p-4 rounded-full shadow-2xl hover:shadow-teal-500/25 transition-all duration-300 hover:scale-110 animate-bounce"
@@ -126,9 +159,8 @@ if (!OPENAI_API_KEY) {
           {/* Header */}
           <div className="bg-gradient-to-r from-teal-500 to-green-400 text-white p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              {/* Thay avatar bot bằng ảnh thật */}
               <img
-                src="/images/customer-support-avatar.jpg" // Thay bằng URL avatar thật của bộ phận CSKH
+                src="/images/customer-support-avatar.jpg"
                 alt="Customer Support"
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -157,7 +189,7 @@ if (!OPENAI_API_KEY) {
               >
                 {message.isBot ? (
                   <img
-                    src="/images/customer-support-avatar.jpg" // Avatar thật bot
+                    src="/images/customer-support-avatar.jpg"
                     alt="Support"
                     className="w-6 h-6 rounded-full flex-shrink-0 object-cover"
                   />

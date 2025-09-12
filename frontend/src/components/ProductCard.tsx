@@ -69,8 +69,8 @@ export default function ProductCard({ product, onFavorite, isFavorited, classNam
         }}
         aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         className={cn(
-          'absolute top-4 right-4 p-3 rounded-full bg-white/20 backdrop-blur-md shadow-md transition-colors duration-300 hover:bg-[#14b8a6] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] z-20',
-          isFavorited ? 'text-[#14b8a6]' : 'text-white'
+          'absolute top-4 right-4 p-3 rounded-full bg-white/20 backdrop-blur-md shadow-md transition-colors duration-300 hover:bg-pink-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 z-20',
+          isFavorited ? 'text-pink-500' : 'text-white'
         )}
       >
         <Heart size={22} fill={isFavorited ? 'currentColor' : 'none'} strokeWidth={2} />
