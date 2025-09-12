@@ -204,7 +204,7 @@ export default function Index() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
           style={{
-            backgroundImage: 'url(/images/petfashion.jpg)',
+            backgroundImage: 'url(/images/background.mp4)',
             backgroundPosition: 'center center',
             backgroundSize: 'cover'
           }}
