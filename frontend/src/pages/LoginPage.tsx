@@ -11,7 +11,7 @@ export default function LoginPage() {
     // Giả lập submit
     setTimeout(() => {
       setIsSubmitting(false);
-      alert('Đăng nhập thành công!');
+      alert('Login successful!');
     }, 1500);
   };
 
@@ -21,12 +21,13 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-3xl shadow-2xl max-w-md w-full p-10 space-y-8 animate-fade-slide-up"
         style={{ fontFamily: "'Inter', sans-serif" }}
+        noValidate
       >
         <h2 className="text-4xl font-extrabold text-white text-center mb-6 tracking-tight">
-          Đăng nhập
+          Login
         </h2>
 
-        {/* Email input */}
+        {/* Email input with floating label */}
         <div className="relative">
           <input
             type="email"
@@ -35,18 +36,23 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white px-5 pt-6 pb-2 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
             placeholder="Email"
-            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
           />
           <label
             htmlFor="email"
-            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+            className={`
+              absolute left-5 top-2 text-gray-400 text-sm transition-all
+              peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
+              peer-focus:top-2 peer-focus:text-green-500 peer-focus:text-sm
+              cursor-text select-none
+            `}
           >
             Email
           </label>
         </div>
 
-        {/* Password input */}
+        {/* Password input with floating label */}
         <div className="relative">
           <input
             type="password"
@@ -55,14 +61,19 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            placeholder="Mật khẩu"
-            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white placeholder-transparent px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+            className="peer w-full rounded-xl bg-gray-700 bg-opacity-60 text-white px-5 pt-6 pb-2 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-gray-600 transition duration-300 shadow-md"
+            placeholder="Password"
           />
           <label
             htmlFor="password"
-            className="absolute left-5 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-1 peer-focus:text-green-500 peer-focus:text-sm cursor-text select-none"
+            className={`
+              absolute left-5 top-2 text-gray-400 text-sm transition-all
+              peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
+              peer-focus:top-2 peer-focus:text-green-500 peer-focus:text-sm
+              cursor-text select-none
+            `}
           >
-            Mật khẩu
+            Password
           </label>
         </div>
 
@@ -94,18 +105,18 @@ export default function LoginPage() {
               ></path>
             </svg>
           ) : (
-            'Đăng nhập'
+            'Login'
           )}
         </button>
 
-        {/* Link đăng ký */}
+        {/* Sign up link */}
         <p className="text-center text-gray-300">
-          Chưa có tài khoản?{' '}
+          Don&apos;t have an account?{' '}
           <a
             href="/signup"
             className="font-semibold text-green-500 hover:underline"
           >
-            Đăng ký ngay
+            Sign up now
           </a>
         </p>
       </form>
