@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import tailwindcssAspectRatio from "@tailwindcss/aspect-ratio";
 
-export default {
+const config = {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
@@ -16,6 +16,7 @@ export default {
     },
     extend: {
       colors: {
+        // Shadcn/ui colors (giữ nguyên)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -59,6 +60,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+
+        // Custom colors from index.html (thêm vào)
+        'midnight-blue': '#191970',
+        'ghost-white': '#F8F8FF',
+        'yellow2': '#CCCC00', // Đổi tên thành 'custom-yellow' hoặc 'infinique-yellow' để tránh nhầm lẫn nếu có 'yellow' mặc định
+        'light-gray': '#D3D3D3',
+        'light-sea-green': '#20B2AA',
+        'deep-sky-blue4': '#00688B',
+        'dark-turquoise': '#00CED1',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -66,6 +76,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        // Shadcn/ui keyframes (giữ nguyên)
         "accordion-down": {
           from: {
             height: "0",
@@ -82,12 +93,30 @@ export default {
             height: "0",
           },
         },
+
+        // Custom keyframes from index.html (thêm vào)
+        footerGradient: {
+          '0%, 100%': { transform: 'translateX(0) translateY(0)' },
+          '25%': { transform: 'translateX(50px) translateY(-20px)' },
+          '50%': { transform: 'translateX(-30px) translateY(30px)' },
+          '75%': { transform: 'translateX(40px) translateY(-10px)' },
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(200%)' },
+        }
       },
       animation: {
+        // Shadcn/ui animations (giữ nguyên)
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+
+        // Custom animations (thêm vào)
+        'footer-gradient': 'footerGradient 20s ease-in-out infinite',
+        'shimmer': 'shimmer 1.5s infinite linear',
       },
     },
   },
   plugins: [tailwindcssAnimate, tailwindcssAspectRatio],
 } satisfies Config;
+
+export default config;

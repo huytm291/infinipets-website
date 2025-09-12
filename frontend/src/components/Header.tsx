@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, User, Heart, ShoppingCart, Menu, Sun, Moon } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, Menu, Sun, Moon, ChevronDown } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
@@ -10,8 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+} from "@/components/ui/dropdown-menu"; // Đảm bảo đường dẫn đúng
 
 interface HeaderProps {
   favoriteCount: number;
@@ -35,10 +34,12 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/products' },
-    { name: 'Collections', href: '/collections' },
-    { name: 'About', href: '/about' },
+    { name: 'HOME', href: '/' },
+    { name: 'CATEGORIES', href: '/categories' }, // Giả định có trang categories
+    { name: 'SHOP', href: '/products' },
+    { name: 'BLOG', href: '/blog' }, // Giả định có trang blog
+    { name: 'ABOUT', href: '/about' },
+    { name: 'CONTACT', href: '/contact' }, // Giả định có trang contact
   ];
 
   const handleSignOut = async () => {
@@ -46,77 +47,115 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
     navigate('/');
   };
 
+  // Hàm xử lý click vào nav link
+  const handleNavLinkClick = (href: string) => {
+    navigate(href);
+    setIsMenuOpen(false); // Đóng menu mobile sau khi click
+  };
+
+  // Hàm xử lý hiệu ứng hover cho nav link (tái tạo hiệu ứng liquid fill)
+  const NavLinkEffect = ({ children, href }: { children: React.ReactNode; href: string }) => {
+    return (
+      <a
+        href={href}
+        onClick={(e) => { e.preventDefault(); handleNavLinkClick(href); }}
+        className="relative block px-4 py-2 font-semibold rounded-lg overflow-hidden transition-all duration-500 ease-in-out group"
+      >
+        <span className="absolute inset-0 bg-gradient-to-r from-sky-600 to-teal-500 transform scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+        <span className={`relative z-10 transition-colors duration-500 ease-in-out ${isDarkMode ? 'text-gray-300 group-hover:text-white' : 'text-gray-700 group-hover:text-white'}`}>
+          {children}
+        </span>
+      </a>
+    );
+  };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? (isDarkMode ? 'bg-gray-900/80 backdrop-blur-sm shadow-lg' : 'bg-white/80 backdrop-blur-sm shadow-lg') : 'bg-transparent'}`}>
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+    <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 ease-in-out ${isScrolled ? (isDarkMode ? 'bg-gray-900/90 backdrop-blur-lg shadow-xl border-b border-gray-700' : 'bg-white/90 backdrop-blur-lg shadow-xl border-b border-gray-200') : 'bg-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="text-2xl font-bold font-coiny bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">
+          <a href="/" className="flex items-center gap-2 text-2xl font-bold font-coiny bg-gradient-to-r from-sky-600 to-teal-500 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 hover:rotate-1">
+            {/* Bạn có thể thêm logo image ở đây nếu muốn, tương tự như index.html */}
+            {/* <img src="/logo2.png" alt="INFINIQUE Logo" className="h-8 w-auto" /> */}
             INFINIPETS
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
-              >
+              <NavLinkEffect key={link.name} href={link.href}>
                 {link.name}
-              </a>
+              </NavLinkEffect>
             ))}
           </nav>
 
-          {/* Icons */}
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            <button className={`p-3 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-              <Search size={18} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            </button>
-            <button onClick={onToggleDarkMode} className={`p-3 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-gray-600" />}
+          {/* Actions */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Language Selector */}
+            <div className="relative">
+              <select
+                className={`appearance-none bg-transparent border-2 rounded-full py-1 px-3 text-sm font-medium cursor-pointer transition-all duration-300 ${isDarkMode ? 'border-gray-600 text-gray-300 hover:border-teal-500' : 'border-gray-300 text-gray-700 hover:border-teal-500'}`}
+              >
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="de">DE</option>
+                <option value="vi">VI</option>
+              </select>
+              <ChevronDown size={16} className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+            </div>
+
+            {/* Search Icon */}
+            <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+              <Search size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
             </button>
 
+            {/* Dark Mode Toggle */}
+            <button onClick={onToggleDarkMode} className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+              {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
+            </button>
+
+            {/* User Dropdown / Login Button */}
             {user ? (
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                   <button className="p-3 rounded-full transition-all duration-300 hover:bg-teal-500/10">
-                      <User size={18} className="text-teal-500" />
+                   <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+                      <User size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
                     </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="mr-4">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="text-red-500">Sign Out</DropdownMenuItem>
+                <DropdownMenuContent className={`w-48 ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-800 border-gray-200'}`}>
+                  <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator className={isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} />
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className={`cursor-pointer ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem className={`cursor-pointer ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>Orders</DropdownMenuItem>
+                  <DropdownMenuItem className={`cursor-pointer ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>Settings</DropdownMenuItem>
+                   <DropdownMenuSeparator className={isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} />
+                  <DropdownMenuItem onClick={handleSignOut} className={`cursor-pointer text-red-500 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-red-50'}`}>Sign Out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-               <button 
+               <button
                 onClick={() => navigate('/login')}
-                className="p-3 rounded-full transition-all duration-300 hover:bg-teal-500/10 text-gray-400 hover:text-teal-500"
+                className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
               >
-                <User size={18} />
+                <User size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
               </button>
             )}
 
-
-            <a href="/favorites" className="relative p-3 rounded-full transition-all duration-300 hover:bg-teal-500/10 text-gray-400 hover:text-teal-500">
-              <Heart size={18} />
+            {/* Wishlist Icon */}
+            <a href="/favorites" className={`relative p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+              <Heart size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
               {favoriteCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {favoriteCount}
                 </span>
               )}
             </a>
-            <a href="/cart" className="relative p-3 rounded-full transition-all duration-300 hover:bg-teal-500/10 text-gray-400 hover:text-teal-500">
-              <ShoppingCart size={18} />
+
+            {/* Shopping Cart Icon */}
+            <a href="/cart" className={`relative p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+              <ShoppingCart size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -124,7 +163,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
             
             {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
                 <Menu size={24} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}/>
               </button>
             </div>
@@ -136,19 +175,19 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className={`md:hidden absolute top-full left-4 right-4 rounded-b-2xl shadow-xl overflow-hidden ${isDarkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={`md:hidden absolute top-full left-0 right-0 shadow-lg overflow-hidden z-50 ${isDarkMode ? 'bg-gray-800/95 backdrop-blur-md' : 'bg-white/95 backdrop-blur-md'}`}
           >
-            <div className="flex flex-col space-y-2 p-3">
+            <div className="flex flex-col space-y-1 p-4">
               {navLinks.map((link) => (
-                <a 
-                  key={link.name} 
+                <a
+                  key={link.name}
                   href={link.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`py-3 px-4 text-center rounded-lg font-medium transition-colors ${isDarkMode ? 'text-gray-200 hover:bg-gray-700/60' : 'text-gray-700 hover:bg-gray-100'}`}
+                  onClick={() => handleNavLinkClick(link.href)}
+                  className={`block py-3 px-4 text-lg font-medium rounded-lg transition-colors duration-300 ${isDarkMode ? 'text-gray-200 hover:bg-gray-700/70' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   {link.name}
                 </a>
@@ -160,4 +199,3 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
     </header>
   );
 }
-
