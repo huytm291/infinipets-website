@@ -3,13 +3,38 @@ import { Star, ArrowRight, Play } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import ChatBot from '@/components/ChatBot';
 import LoadingScreen from '@/components/LoadingScreen';
-import { categories, featuredProducts } from '@/data/products';
 import NewsletterSection from '@/components/NewsletterSection';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
+
+  // Categories state
+  const [categories, setCategories] = useState<
+    {
+      id: number;
+      name: string;
+      description: string;
+      image: string;
+      productCount: number;
+    }[]
+  >([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [errorCategories, setErrorCategories] = useState<string | null>(null);
+
+  // Featured products state
+  const [featuredProducts, setFeaturedProducts] = useState<
+    {
+      id: string;
+      name: string;
+      description: string;
+      price: number;
+      image: string;
+    }[]
+  >([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [errorFeatured, setErrorFeatured] = useState<string | null>(null);
 
   // Testimonials state
   const [testimonials, setTestimonials] = useState<
@@ -25,8 +50,62 @@ export default function HomePage() {
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
   const [errorTestimonials, setErrorTestimonials] = useState<string | null>(null);
 
-  // Fetch testimonials from Supabase
+  // Fetch categories and featured products on mount
   useEffect(() => {
+    async function fetchCategories() {
+      setLoadingCategories(true);
+      setErrorCategories(null);
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id, name, description, image, product_count')
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        const mapped = (data || []).map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          image: item.image,
+          productCount: item.product_count,
+        }));
+
+        setCategories(mapped);
+      } catch (err: any) {
+        setErrorCategories(err.message || 'Failed to load categories');
+      } finally {
+        setLoadingCategories(false);
+      }
+    }
+
+    async function fetchFeaturedProducts() {
+      setLoadingFeatured(true);
+      setErrorFeatured(null);
+      try {
+        const { data, error } = await supabase
+          .from('featured_products')
+          .select('id, name, description, price, image')
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        const mapped = (data || []).map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image: item.image,
+        }));
+
+        setFeaturedProducts(mapped);
+      } catch (err: any) {
+        setErrorFeatured(err.message || 'Failed to load featured products');
+      } finally {
+        setLoadingFeatured(false);
+      }
+    }
+
     async function fetchTestimonials() {
       setLoadingTestimonials(true);
       setErrorTestimonials(null);
@@ -55,6 +134,8 @@ export default function HomePage() {
       }
     }
 
+    fetchCategories();
+    fetchFeaturedProducts();
     fetchTestimonials();
   }, []);
 
@@ -152,51 +233,62 @@ export default function HomePage() {
               From everyday essentials to show-stopping costumes, find the perfect style for every personality
             </motion.p>
           </div>
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              visible: {
-                transition: {
-                  staggerChildren: 0.15,
+
+          {loadingCategories && (
+            <p className="text-center text-gray-600 dark:text-gray-400">Loading categories...</p>
+          )}
+
+          {errorCategories && (
+            <p className="text-center text-red-600 dark:text-red-400">{errorCategories}</p>
+          )}
+
+          {!loadingCategories && !errorCategories && (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.15,
+                  },
                 },
-              },
-            }}
-          >
-            {categories.map((category) => (
-              <motion.div
-                key={category.id}
-                variants={{
-                  hidden: { opacity: 0, y: 30, scale: 0.95 },
-                  visible: { opacity: 1, y: 0, scale: 1 },
-                }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-3xl transition-shadow duration-400 bg-white dark:bg-gray-800"
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out select-none"
-                  draggable={false}
-                />
-                <div className="p-8">
-                  <h3 className="font-coiny text-2xl mb-3">{category.name}</h3>
-                  <p className="text-base text-gray-600 dark:text-gray-400 mb-6">{category.description}</p>
-                  <div className="flex items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <span>{category.productCount} items</span>
-                    <ArrowRight
-                      size={18}
-                      className="group-hover:translate-x-2 transition-transform duration-300"
-                      aria-hidden="true"
-                    />
+              }}
+            >
+              {categories.map((category) => (
+                <motion.div
+                  key={category.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                    visible: { opacity: 1, y: 0, scale: 1 },
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-3xl transition-shadow duration-400 bg-white dark:bg-gray-800"
+                >
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out select-none"
+                    draggable={false}
+                  />
+                  <div className="p-8">
+                    <h3 className="font-coiny text-2xl mb-3">{category.name}</h3>
+                    <p className="text-base text-gray-600 dark:text-gray-400 mb-6">{category.description}</p>
+                    <div className="flex items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <span>{category.productCount} items</span>
+                      <ArrowRight
+                        size={18}
+                        className="group-hover:translate-x-2 transition-transform duration-300"
+                        aria-hidden="true"
+                      />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -223,38 +315,49 @@ export default function HomePage() {
               Handpicked by our style experts and loved by pets across Europe
             </motion.p>
           </div>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              visible: {
-                transition: {
-                  staggerChildren: 0.12,
+
+          {loadingFeatured && (
+            <p className="text-center text-gray-600 dark:text-gray-400">Loading featured products...</p>
+          )}
+
+          {errorFeatured && (
+            <p className="text-center text-red-600 dark:text-red-400">{errorFeatured}</p>
+          )}
+
+          {!loadingFeatured && !errorFeatured && (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.12,
+                  },
                 },
-              },
-            }}
-          >
-            {featuredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                variants={{
-                  hidden: { opacity: 0, y: 30, scale: 0.95 },
-                  visible: { opacity: 1, y: 0, scale: 1 },
-                }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              >
-                <ProductCard
-                  product={product}
-                  onFavorite={handleFavorite}
-                  isFavorited={false}
-                  className="shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-2xl"
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+              }}
+            >
+              {featuredProducts.map((product) => (
+                <motion.div
+                  key={product.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                    visible: { opacity: 1, y: 0, scale: 1 },
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                >
+                  <ProductCard
+                    product={product}
+                    onFavorite={handleFavorite}
+                    isFavorited={false}
+                    className="shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-2xl"
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -332,7 +435,7 @@ export default function HomePage() {
                       <Star key={i} size={18} className="text-[#14b8a6] fill-current" />
                     ))}
                   </div>
-                  <p className="flex-grow text-gray-700 dark:text-gray-300 italic text-lg leading-relaxed">
+                                    <p className="flex-grow text-gray-700 dark:text-gray-300 italic text-lg leading-relaxed">
                     "{testimonial.text}"
                   </p>
                 </motion.div>
@@ -342,7 +445,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Newsletter Section */}
       <NewsletterSection />
+
+      {/* ChatBot */}
       <ChatBot />
     </div>
   );
