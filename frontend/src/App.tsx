@@ -25,10 +25,10 @@ import ContactPage from '@/pages/ContactPage';
 import BlogPage from '@/pages/BlogPage';
 import BlogPostPage from '@/pages/BlogPostPage';
 
-// Các trang placeholder
-const ProductDetailPage = () => <div className="pt-24 text-center">Trang Chi Tiết Sản Phẩm</div>;
-const CheckoutPage = () => <div className="pt-24 text-center">Trang Thanh Toán</div>;
-const CollectionsPage = () => <div className="pt-24 text-center">Trang Bộ Sưu Tập</div>;
+// Các trang placeholder (nên tách riêng file khi phát triển)
+const ProductDetailPage = () => <div className="pt-24 text-center select-none">Trang Chi Tiết Sản Phẩm</div>;
+const CheckoutPage = () => <div className="pt-24 text-center select-none">Trang Thanh Toán</div>;
+const CollectionsPage = () => <div className="pt-24 text-center select-none">Trang Bộ Sưu Tập</div>;
 
 const queryClient = new QueryClient();
 
@@ -39,7 +39,8 @@ const App = () => (
         <CartProvider>
           <FavoritesProvider>
             <BrowserRouter>
-              <Toaster richColors />
+              {/* Toaster cho thông báo toast toàn cục */}
+              <Toaster richColors position="top-right" />
               <Routes>
                 {/* Các route sử dụng layout chung */}
                 <Route element={<AppLayout />}>
