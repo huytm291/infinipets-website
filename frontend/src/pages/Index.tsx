@@ -6,39 +6,165 @@ import ChatBot from '@/components/ChatBot';
 import LoadingScreen from '@/components/LoadingScreen';
 import { categories, featuredProducts, limitedProducts } from '@/data/products';
 
-// Component hiệu ứng lá thư bay lên
-const FlyingEnvelope = ({ isVisible, onAnimationEnd }: { isVisible: boolean; onAnimationEnd: () => void }) => {
+// Component hiệu ứng nhiều lá thư bay lên với sparkles
+const EnhancedFlyingEnvelope = ({ isVisible, onAnimationEnd }: { isVisible: boolean; onAnimationEnd: () => void }) => {
   if (!isVisible) return null;
+
+  // Tạo nhiều lá thư với hiệu ứng đa dạng
+  const envelopes = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    delay: i * 0.15,
+    startX: 20 + (i * 5) % 60, // Phân bố rộng hơn
+    startY: 45 + (i % 3) * 5, // Vị trí Y khác nhau
+    rotation: (i * 30) % 360,
+    scale: 0.6 + (i % 4) * 0.2,
+    type: i % 3, // 3 loại hiệu ứng khác nhau
+  }));
+
+  // Tạo sparkles xung quanh
+  const sparkles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    delay: i * 0.1,
+    startX: 10 + (i * 4) % 80,
+    startY: 30 + (i % 5) * 8,
+    scale: 0.3 + (i % 3) * 0.2,
+  }));
 
   return (
     <div 
       className="fixed inset-0 pointer-events-none z-50"
       onAnimationEnd={onAnimationEnd}
     >
-      <div className="flying-envelope">
-        <Mail size={32} className="text-teal-500" />
-      </div>
+      {/* Sparkles effect */}
+      {sparkles.map((sparkle) => (
+        <div
+          key={`sparkle-${sparkle.id}`}
+          className="flying-sparkle"
+          style={{
+            left: `${sparkle.startX}%`,
+            top: `${sparkle.startY}%`,
+            animationDelay: `${sparkle.delay}s`,
+            '--scale': sparkle.scale,
+          } as React.CSSProperties}
+        >
+          <Sparkles size={12} className="text-yellow-400" />
+        </div>
+      ))}
+
+      {/* Flying envelopes */}
+      {envelopes.map((envelope) => (
+        <div
+          key={`envelope-${envelope.id}`}
+          className={`flying-envelope-enhanced type-${envelope.type}`}
+          style={{
+            left: `${envelope.startX}%`,
+            top: `${envelope.startY}%`,
+            animationDelay: `${envelope.delay}s`,
+            '--rotation': `${envelope.rotation}deg`,
+            '--scale': envelope.scale,
+          } as React.CSSProperties}
+        >
+          <Mail size={20} className="text-teal-500" />
+        </div>
+      ))}
       
       <style jsx>{`
-        .flying-envelope {
+        .flying-sparkle {
           position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          animation: flyUp 2s ease-out forwards;
+          animation: sparkleFloat 2s ease-out forwards;
+          opacity: 0;
         }
         
-        @keyframes flyUp {
+        .flying-envelope-enhanced {
+          position: absolute;
+          animation: flyUpEnhanced 3.5s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .flying-envelope-enhanced.type-0 {
+          animation: flyUpStraight 3s ease-out forwards;
+        }
+        
+        .flying-envelope-enhanced.type-1 {
+          animation: flyUpCurved 3.2s ease-out forwards;
+        }
+        
+        .flying-envelope-enhanced.type-2 {
+          animation: flyUpSpiral 3.8s ease-out forwards;
+        }
+        
+        @keyframes sparkleFloat {
           0% {
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          20% {
+            transform: scale(var(--scale)) rotate(180deg);
             opacity: 1;
           }
-          50% {
-            transform: translate(-50%, -80vh) scale(1.2) rotate(10deg);
+          80% {
+            transform: scale(calc(var(--scale) * 1.5)) rotate(360deg);
             opacity: 0.8;
           }
           100% {
-            transform: translate(-50%, -100vh) scale(0.5) rotate(20deg);
+            transform: scale(0) rotate(540deg);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes flyUpStraight {
+          0% {
+            transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg);
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -150vh) scale(calc(var(--scale) * 0.3)) rotate(var(--rotation));
+            opacity: 0;
+          }
+        }
+        
+        @keyframes flyUpCurved {
+          0% {
+            transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg);
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          30% {
+            transform: translate(-30%, -70vh) scale(calc(var(--scale) * 1.2)) rotate(calc(var(--rotation) * 0.3));
+          }
+          60% {
+            transform: translate(-70%, -100vh) scale(calc(var(--scale) * 0.9)) rotate(calc(var(--rotation) * 0.7));
+          }
+          100% {
+            transform: translate(-50%, -150vh) scale(calc(var(--scale) * 0.3)) rotate(var(--rotation));
+            opacity: 0;
+          }
+        }
+        
+        @keyframes flyUpSpiral {
+          0% {
+            transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg);
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          25% {
+            transform: translate(-30%, -60vh) scale(calc(var(--scale) * 1.1)) rotate(90deg);
+          }
+          50% {
+            transform: translate(-70%, -80vh) scale(calc(var(--scale) * 1.3)) rotate(180deg);
+          }
+          75% {
+            transform: translate(-30%, -110vh) scale(calc(var(--scale) * 0.8)) rotate(270deg);
+          }
+          100% {
+            transform: translate(-50%, -150vh) scale(calc(var(--scale) * 0.2)) rotate(360deg);
             opacity: 0;
           }
         }
@@ -90,7 +216,7 @@ export default function Index() {
 
     setIsSubscribing(true);
     
-    // Hiển thị hiệu ứng lá thư bay lên
+    // Hiển thị hiệu ứng nhiều lá thư bay lên
     setShowFlyingEnvelope(true);
     
     // Simulate API call
@@ -274,7 +400,8 @@ export default function Index() {
               />
             ))}
           </div>
-                    <div className="text-center mt-12">
+
+          <div className="text-center mt-12">
             <button className="bg-gradient-to-r from-teal-500 to-green-500 text-white font-bold px-8 py-4 rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center mx-auto">
               View All Products
               <ArrowRight className="ml-2" size={20} />
@@ -436,7 +563,7 @@ export default function Index() {
         
         {/* Floating Elements */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-teal-200/20 dark:bg-teal-600/20 rounded-full animate-pulse"></div>
-        <div className="absolute top-20 right-20 w-16 h-16 bg-green-200/20 dark:bg-green-600/20 rounded-lg rotate-45 animate-bounce"></div>
+                <div className="absolute top-20 right-20 w-16 h-16 bg-green-200/20 dark:bg-green-600/20 rounded-lg rotate-45 animate-bounce"></div>
         <div className="absolute bottom-10 left-20 w-24 h-24 bg-teal-200/20 dark:bg-teal-600/20 rounded-full animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-18 h-18 bg-green-200/20 dark:bg-green-600/20 rounded-lg rotate-12 animate-bounce"></div>
 
@@ -497,7 +624,7 @@ export default function Index() {
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           <span>Subscribing...</span>
-                                                  </>
+                        </>
                       ) : (
                         <>
                           <Send size={16} />
@@ -638,8 +765,8 @@ export default function Index() {
         </div>
       </footer>
 
-      {/* Flying Envelope Effect */}
-      <FlyingEnvelope 
+      {/* Flying Envelope Effect với nhiều lá thư và sparkles */}
+      <EnhancedFlyingEnvelope 
         isVisible={showFlyingEnvelope} 
         onAnimationEnd={handleAnimationEnd}
       />
