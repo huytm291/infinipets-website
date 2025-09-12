@@ -74,12 +74,16 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
     <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 ease-in-out ${isScrolled ? (isDarkMode ? 'bg-gray-900/90 backdrop-blur-lg shadow-xl border-b border-gray-700' : 'bg-white/90 backdrop-blur-lg shadow-xl border-b border-gray-200') : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          {/* Cập nhật màu gradient cho logo */}
-          <a href="/" className="flex items-center gap-2 text-2xl font-bold font-coiny bg-gradient-to-r from-[#14b8a6] to-[#4ade80] bg-clip-text text-transparent transition-all duration-300 hover:scale-105 hover:rotate-1">
-            {/* Bạn có thể thêm logo image ở đây nếu muốn, tương tự như index.html */}
-            {/* <img src="/logo2.png" alt="INFINIQUE Logo" className="h-8 w-auto" /> */}
-            INFINIPETS
+          {/* Logo có ảnh */}
+          <a href="/" className="flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:rotate-1 select-none">
+            <img 
+              src="/logo.png" 
+              alt="INFINIPETS Logo" 
+              className="h-10 w-auto object-contain" 
+            />
+            <span className="text-2xl font-bold font-coiny bg-gradient-to-r from-[#14b8a6] to-[#4ade80] bg-clip-text text-transparent">
+              INFINIPETS
+            </span>
           </a>
 
           {/* Desktop Navigation */}
@@ -93,7 +97,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
 
           {/* Actions */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Selector - Đã chỉnh sửa */}
+            {/* Language Selector */}
             <div className={`relative rounded-full border-2 transition-all duration-300 
               ${isDarkMode ? 'border-gray-600 bg-gray-800 hover:border-[#14b8a6]' : 'border-gray-300 bg-white hover:border-[#14b8a6]'}`}>
               <select
@@ -124,7 +128,6 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                    <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-                      {/* Cập nhật màu icon người dùng */}
                       <User size={20} className={isDarkMode ? 'text-[#4ade80]' : 'text-[#14b8a6]'} />
                     </button>
                 </DropdownMenuTrigger>
