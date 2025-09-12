@@ -77,7 +77,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
           {/* Logo có ảnh */}
           <a href="/" className="flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:rotate-1 select-none">
             <img 
-              src="/logo.png" 
+              src="/public/images/logo.png" 
               alt="INFINIPETS Logo" 
               className="h-10 w-auto object-contain" 
             />

@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 export default function Footer() {
     // Dữ liệu cho các social icons, bạn có thể thay đổi đường dẫn ảnh trong thư mục public
     const socialLinks = [
-        { name: 'Facebook', icon: 'social-icons/facebook.png', url: 'image/socialicon/facebook.png' },
-        { name: 'Instagram', icon: '/social-icons/instagram.png', url: 'image/socialicon/instagram.png' },
-        { name: 'Twitter', icon: '/social-icons/twitter.png', url: 'image/socialicon/twitter.png' },
-        { name: 'Whatsapp', icon: '/social-icons/whatsapp.png', url: 'image/socialicon/whatsapp.png' },
+        { name: 'Facebook', icon: 'social-icons/facebook.png', url: 'public/images/socialicon/facebook.png' },
+        { name: 'Instagram', icon: '/social-icons/instagram.png', url: 'public/images/socialicon/instagram.png' },
+        { name: 'Twitter', icon: '/social-icons/twitter.png', url: 'public/images/socialicon/twitter.png' },
+        { name: 'Whatsapp', icon: '/social-icons/whatsapp.png', url: 'public/images/socialicon/whatsapp.png' },
     ];
 
     return (
