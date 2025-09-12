@@ -1,57 +1,52 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { viteSourceLocator } from "@metagptx/vite-plugin-source-locator";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// https://vitejs.dev/config/
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export default defineConfig(({ mode }) => ({
-  plugins: [
-    viteSourceLocator({
-      prefix: "mgx",
-    }),
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-  base: "./", // Giúp load asset đúng khi deploy trên subfolder hoặc file://
+  base: './', // Giúp load asset đúng khi deploy trên subfolder hoặc mở file trực tiếp
   build: {
-    outDir: "dist",
+    outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: mode === "development", // Tạo sourcemap khi dev để debug dễ hơn
-    target: "esnext", // Đặt target hiện đại, React + SWC hỗ trợ tốt
+    sourcemap: mode === 'development',
+    target: 'esnext',
     rollupOptions: {
       output: {
-        // Đặt tên file rõ ràng, tránh cache issues
-        chunkFileNames: "assets/js/[name]-[hash].js",
-        entryFileNames: "assets/js/[name]-[hash].js",
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: ({ name }) => {
-          if (/\.(css)$/.test(name ?? "")) {
-            return "assets/css/[name]-[hash][extname]";
+          if (/\.(css)$/.test(name ?? '')) {
+            return 'assets/css/[name]-[hash][extname]';
           }
-          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/.test(name ?? "")) {
-            return "assets/images/[name]-[hash][extname]";
+          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/.test(name ?? '')) {
+            return 'assets/images/[name]-[hash][extname]';
           }
-          return "assets/[name]-[hash][extname]";
+          return 'assets/[name]-[hash][extname]';
         },
       },
     },
   },
   server: {
-    port: 5173,
-    open: true,
+    watch: {
+      usePolling: true, // Giúp tránh lỗi khi chạy trong container hoặc môi trường mạng ảo
+    },
+    host: true, // Cho phép truy cập từ bên ngoài (0.0.0.0)
     strictPort: true, // Nếu port 5173 đang dùng thì báo lỗi, không tự đổi port
+    port: 5173,
     fs: {
-      strict: true, // Chỉ cho phép truy cập file trong root dự án, tăng bảo mật
+      strict: true, // Chỉ cho phép truy cập file trong root dự án
     },
   },
   optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      // Thêm các thư viện bạn dùng nhiều để tăng tốc dev server
-    ],
+    include: ['react', 'react-dom'], // Tăng tốc dev server
   },
 }));
