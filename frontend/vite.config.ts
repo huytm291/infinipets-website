@@ -16,13 +16,42 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "./", // 👈 giúp load asset đúng khi deploy
+  base: "./", // Giúp load asset đúng khi deploy trên subfolder hoặc file://
   build: {
-    outDir: "dist", // thư mục output
-    emptyOutDir: true, // xóa dist cũ trước khi build
+    outDir: "dist",
+    emptyOutDir: true,
+    sourcemap: mode === "development", // Tạo sourcemap khi dev để debug dễ hơn
+    target: "esnext", // Đặt target hiện đại, React + SWC hỗ trợ tốt
+    rollupOptions: {
+      output: {
+        // Đặt tên file rõ ràng, tránh cache issues
+        chunkFileNames: "assets/js/[name]-[hash].js",
+        entryFileNames: "assets/js/[name]-[hash].js",
+        assetFileNames: ({ name }) => {
+          if (/\.(css)$/.test(name ?? "")) {
+            return "assets/css/[name]-[hash][extname]";
+          }
+          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/.test(name ?? "")) {
+            return "assets/images/[name]-[hash][extname]";
+          }
+          return "assets/[name]-[hash][extname]";
+        },
+      },
+    },
   },
   server: {
-    port: 5173, // cổng dev mặc định của Vite
-    open: true, // tự mở trình duyệt khi chạy dev
+    port: 5173,
+    open: true,
+    strictPort: true, // Nếu port 5173 đang dùng thì báo lỗi, không tự đổi port
+    fs: {
+      strict: true, // Chỉ cho phép truy cập file trong root dự án, tăng bảo mật
+    },
+  },
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      // Thêm các thư viện bạn dùng nhiều để tăng tốc dev server
+    ],
   },
 }));
