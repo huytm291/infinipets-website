@@ -198,17 +198,9 @@ export default function Index() {
         onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
       />
 
-      {/* Hero Section */}
-      <section className={`relative min-h-screen flex items-center justify-center overflow-hidden ${
-        isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-teal-50 via-white to-green-50'
-      }`}>
-        {/* Background Effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-400/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-400/20 rounded-full blur-3xl animate-pulse"></div>
-        </div>
-
-        <div className="container mx-auto px-4 text-center relative z-10">
+      {/* Hero Section - Đơn giản như file gốc */}
+      <section className={`py-20 px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className={`text-5xl md:text-7xl font-bold mb-6 ${
               isDarkMode ? 'text-white' : 'text-gray-900'
