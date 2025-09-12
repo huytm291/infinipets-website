@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Trang Chủ",
+    "products": "Sản Phẩm",
+    "blog": "Blog",
+    "favorites": "Yêu Thích",
+    "profile": "Hồ Sơ",
+    "login": "Đăng Nhập",
+    "signup": "Đăng Ký",
+    "logout": "Đăng Xuất"
+  },
+  "blog": {
+    "title": "Bài Viết Mới Nhất",
+    "readMore": "Đọc Thêm"
+  },
+  "favorites": {
+    "empty": "Bạn chưa có sản phẩm yêu thích nào.",
+    "added": "Đã thêm vào yêu thích",
+    "removed": "Đã xóa khỏi yêu thích"
+  },
+  "feedback": {
+    "title": "Gửi Phản Hồi Của Bạn",
+    "submit": "Gửi Phản Hồi",
+    "success": "Cảm ơn bạn đã gửi phản hồi!",
+    "error": "Vui lòng điền đầy đủ các trường bắt buộc."
+  }
+}

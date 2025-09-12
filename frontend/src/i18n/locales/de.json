@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "products": "Produkte",
+    "blog": "Blog",
+    "favorites": "Favoriten",
+    "profile": "Profil",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden"
+  },
+  "blog": {
+    "title": "Neueste Blogbeiträge",
+    "readMore": "Weiterlesen"
+  },
+  "favorites": {
+    "empty": "Sie haben noch keine Lieblingsprodukte.",
+    "added": "Zu Favoriten hinzugefügt",
+    "removed": "Aus Favoriten entfernt"
+  },
+  "feedback": {
+    "title": "Hinterlassen Sie Ihr Feedback",
+    "submit": "Feedback absenden",
+    "success": "Vielen Dank für Ihr Feedback!",
+    "error": "Bitte füllen Sie alle Pflichtfelder aus."
+  }
+}

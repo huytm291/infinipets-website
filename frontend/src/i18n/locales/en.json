@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "blog": "Blog",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "blog": {
+    "title": "Latest Blog Posts",
+    "readMore": "Read More"
+  },
+  "favorites": {
+    "empty": "You have no favorite products yet.",
+    "added": "Added to favorites",
+    "removed": "Removed from favorites"
+  },
+  "feedback": {
+    "title": "Leave Your Feedback",
+    "submit": "Submit Feedback",
+    "success": "Thank you for your feedback!",
+    "error": "Please fill in all required fields."
+  }
+}
