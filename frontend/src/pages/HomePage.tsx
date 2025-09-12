@@ -3,7 +3,7 @@ import { Star, ArrowRight, Play } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import ChatBot from '@/components/ChatBot';
 import LoadingScreen from '@/components/LoadingScreen';
-import { categories, featuredProducts } from '@/data/products';
+import { categories, featuredProducts } from '@/data/product';
 import NewsletterSection from '@/components/NewsletterSection';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
