@@ -43,6 +43,14 @@ export default function HomePage() {
       rating: 5,
       image: "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=100&h=100&fit=crop&crop=face"
     }
+    {
+      id: 4,
+      name:"Tom & Jerry",
+      location: "Paris, France",
+      text:"wow so beutiful product bro",
+      rating:5,
+      image:"https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&h=100&fit=crop&crop=face"
+      }
   ];
 
   return (
