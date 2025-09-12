@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { posts } from '@/data/posts';
-import BlogPostCard from '@/components/BlogPostCard';
+import BlogPostCard from '@/components/blog/BlogPostCard';
 import { motion } from 'framer-motion';
 
 export default function BlogPage() {
