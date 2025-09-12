@@ -23,6 +23,7 @@ interface HeaderProps {
 export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleDarkMode }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth(); // Lấy thông tin người dùng và hàm signOut
 
@@ -35,6 +36,21 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Đóng search khi click ngoài
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        isSearchOpen &&
+        searchCommandRef.current &&
+        !searchCommandRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSearchOpen]);
 
   const navLinks = [
     { name: 'HOME', href: '/' },
@@ -54,6 +70,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
   const handleNavLinkClick = (href: string) => {
     navigate(href);
     setIsMenuOpen(false); // Đóng menu mobile sau khi click
+    setIsSearchOpen(false); // Đóng search nếu mở
   };
 
   // Hàm xử lý hiệu ứng hover cho nav link (tái tạo hiệu ứng liquid fill)
@@ -88,7 +105,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
   const handleSelect = (item: SearchResult) => {
     // Ví dụ chuyển trang hoặc xử lý khi chọn kết quả
     alert(`Selected: ${item.title}`);
-    setIsMenuOpen(false);
+    setIsSearchOpen(false);
   };
 
   return (
@@ -114,11 +131,6 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                 {link.name}
               </NavLinkEffect>
             ))}
-
-            {/* Thêm SearchCommand vào desktop nav */}
-            <div className="w-64 ml-4" ref={searchCommandRef}>
-              <SearchCommand onSearch={handleSearch} onSelect={handleSelect} placeholder="Search products, blog..." />
-            </div>
           </nav>
 
           {/* Actions */}
@@ -139,10 +151,38 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </div>
 
-            {/* Search Icon (giữ nguyên, bạn có thể dùng để mở modal search nếu muốn) */}
-            <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-              <Search size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
-            </button>
+            {/* Search Icon với toggle SearchCommand */}
+            <div className="relative" ref={searchCommandRef}>
+              <button
+                onClick={() => setIsSearchOpen((open) => !open)}
+                className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                aria-label="Toggle search"
+              >
+                <Search size={20} className={isDarkMode ? 'text-gray-300' : 'text-gray-600'} />
+              </button>
+
+              {/* Hiển thị SearchCommand dạng dropdown */}
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className={`absolute right-0 mt-2 w-72 z-50 rounded-xl shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+                  >
+                    <SearchCommand
+                      onSearch={handleSearch}
+                      onSelect={(item) => {
+                        handleSelect(item);
+                        setIsSearchOpen(false);
+                      }}
+                      placeholder="Search products, blog..."
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Dark Mode Toggle */}
             <button onClick={onToggleDarkMode} className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
@@ -230,7 +270,7 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
 
               {/* Thêm SearchCommand vào mobile menu */}
               <div className="mt-4">
-                <SearchCommand onSearch={handleSearch} onSelect={handleSelect} placeholder="Search..." />
+                <SearchCommand onSearch={handleSearch} onSelect={(item) => { handleSelect(item); setIsMenuOpen(false); }} placeholder="Search..." />
               </div>
             </div>
           </motion.div>
