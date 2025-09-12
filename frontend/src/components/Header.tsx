@@ -35,11 +35,11 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
 
   const navLinks = [
     { name: 'HOME', href: '/' },
-    { name: 'CATEGORIES', href: '/categories' }, // Giả định có trang categories
+    { name: 'CATEGORIES', href: '/categories' }, 
     { name: 'SHOP', href: '/products' },
-    { name: 'BLOG', href: '/blog' }, // Giả định có trang blog
+    { name: 'BLOG', href: '/blog' }, 
     { name: 'ABOUT', href: '/about' },
-    { name: 'CONTACT', href: '/contact' }, // Giả định có trang contact
+    { name: 'CONTACT', href: '/contact' }, 
   ];
 
   const handleSignOut = async () => {
@@ -61,7 +61,8 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
         onClick={(e) => { e.preventDefault(); handleNavLinkClick(href); }}
         className="relative block px-4 py-2 font-semibold rounded-lg overflow-hidden transition-all duration-500 ease-in-out group"
       >
-        <span className="absolute inset-0 bg-gradient-to-r from-sky-600 to-teal-500 transform scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+        {/* Cập nhật màu gradient cho hiệu ứng liquid fill */}
+        <span className="absolute inset-0 bg-gradient-to-r from-[#14b8a6] to-[#4ade80] transform scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
         <span className={`relative z-10 transition-colors duration-500 ease-in-out ${isDarkMode ? 'text-gray-300 group-hover:text-white' : 'text-gray-700 group-hover:text-white'}`}>
           {children}
         </span>
@@ -74,7 +75,8 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 text-2xl font-bold font-coiny bg-gradient-to-r from-sky-600 to-teal-500 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 hover:rotate-1">
+          {/* Cập nhật màu gradient cho logo */}
+          <a href="/" className="flex items-center gap-2 text-2xl font-bold font-coiny bg-gradient-to-r from-[#14b8a6] to-[#4ade80] bg-clip-text text-transparent transition-all duration-300 hover:scale-105 hover:rotate-1">
             {/* Bạn có thể thêm logo image ở đây nếu muốn, tương tự như index.html */}
             {/* <img src="/logo2.png" alt="INFINIQUE Logo" className="h-8 w-auto" /> */}
             INFINIPETS
@@ -91,17 +93,20 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
 
           {/* Actions */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Selector */}
-            <div className="relative">
+            {/* Language Selector - Đã chỉnh sửa */}
+            <div className={`relative rounded-full border-2 transition-all duration-300 
+              ${isDarkMode ? 'border-gray-600 bg-gray-800 hover:border-[#14b8a6]' : 'border-gray-300 bg-white hover:border-[#14b8a6]'}`}>
               <select
-                className={`appearance-none bg-transparent border-2 rounded-full py-1 px-3 text-sm font-medium cursor-pointer transition-all duration-300 ${isDarkMode ? 'border-gray-600 text-gray-300 hover:border-teal-500' : 'border-gray-300 text-gray-700 hover:border-teal-500'}`}
+                className={`appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium cursor-pointer outline-none 
+                  ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <option value="en">EN</option>
                 <option value="fr">FR</option>
                 <option value="de">DE</option>
                 <option value="vi">VI</option>
               </select>
-              <ChevronDown size={16} className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <ChevronDown size={16} className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none 
+                ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </div>
 
             {/* Search Icon */}
@@ -119,7 +124,8 @@ export default function Header({ favoriteCount, cartCount, isDarkMode, onToggleD
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                    <button className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-                      <User size={20} className={isDarkMode ? 'text-teal-400' : 'text-teal-600'} />
+                      {/* Cập nhật màu icon người dùng */}
+                      <User size={20} className={isDarkMode ? 'text-[#4ade80]' : 'text-[#14b8a6]'} />
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={`w-48 ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-800 border-gray-200'}`}>
