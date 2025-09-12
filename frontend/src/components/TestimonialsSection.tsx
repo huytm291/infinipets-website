@@ -1,6 +1,6 @@
 import FeedbackCard from './feedback/FeedbackCard';
 import { motion } from 'framer-motion';
-
+ 
 export interface Testimonial {
   id: number;
   name: string;

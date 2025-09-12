@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 
 const RECAPTCHA_SITE_KEY = '6LfXtccrAAAAANX6qR1fs4WsrXD0VCrf_MMy4hpR'; // 
