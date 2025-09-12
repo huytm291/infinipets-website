@@ -10,8 +10,8 @@ import { motion } from 'framer-motion';
 // Import reCAPTCHA component
 import ReCAPTCHA from 'react-google-recaptcha';
 
-const RECAPTCHA_SITE_KEY = 'YOUR_RECAPTCHA_SITE_KEY'; // Thay bằng site key của bạn
-const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://<project-ref>.functions.supabase.co/verify-recaptcha'; // Thay bằng URL function của bạn
+const RECAPTCHA_SITE_KEY = '6LfXtccrAAAAANX6qR1fs4WsrXD0VCrf_MMy4hpR'; // Thay bằng site key của bạn
+const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha'; 
 
 const SignupPage = () => {
   const navigate = useNavigate();
