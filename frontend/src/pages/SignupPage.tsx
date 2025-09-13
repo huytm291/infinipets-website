@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-// Lấy reCAPTCHA site key từ biến môi trường
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY; // Sử dụng import.meta.env cho Vite
-// Hoặc: const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY; // Nếu bạn dùng Next.js
+g
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
 const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 const SignupPage = () => {
