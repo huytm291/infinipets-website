@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { supabase } from '@/lib/supabaseClient';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -7,9 +9,16 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
 }
 
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
+
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,11 +28,118 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add authentication logic here
-    console.log('Auth form submitted:', { mode, formData });
-    onClose();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      // Kiểm tra validation cơ bản
+      if (mode === 'register') {
+        if (!formData.name.trim()) {
+          setError('Full name is required.');
+          setLoading(false);
+          return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match.');
+          setLoading(false);
+          return;
+        }
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (!formData.email.trim()) {
+        setError('Email is required.');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.password) {
+        setError('Password is required.');
+        setLoading(false);
+        return;
+      }
+
+      // Xác thực reCAPTCHA cho cả login và register
+      if (!RECAPTCHA_SITE_KEY) {
+        setError('reCAPTCHA site key is not configured.');
+        setLoading(false);
+        return;
+      }
+
+      const token = await recaptchaRef.current?.executeAsync();
+      recaptchaRef.current?.reset();
+
+      if (!token) {
+        setError('reCAPTCHA verification failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!verifyResponse.ok) {
+        setError('Failed to verify reCAPTCHA. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        setError('reCAPTCHA verification failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Thực hiện authentication
+      if (mode === 'login') {
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (signInError) {
+          setError(signInError.message);
+          setLoading(false);
+          return;
+        }
+
+        setSuccess('Login successful!');
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (signUpError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
+        }
+
+        setSuccess('Please check your email to verify your account.');
+        // TODO: Lưu thêm username nếu cần qua API hoặc Supabase function
+      }
+
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -53,6 +169,18 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
             }
           </p>
         </div>
+
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+            {success}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,12 +263,48 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
             </div>
           )}
 
+          {/* reCAPTCHA - Invisible cho cả login và register */}
+          {RECAPTCHA_SITE_KEY && (
+            <ReCAPTCHA
+              sitekey={RECAPTCHA_SITE_KEY}
+              size="invisible"
+              ref={recaptchaRef}
+            />
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full btn-primary py-3 text-lg font-semibold transform transition-all duration-200 hover:scale-105 active:scale-95"
+            disabled={loading}
+            className="w-full btn-primary py-3 text-lg font-semibold transform transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
-            {mode === 'login' ? 'Sign In' : 'Create Account'}
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                <span>{mode === 'login' ? 'Signing In...' : 'Creating Account...'}</span>
+              </>
+            ) : (
+              mode === 'login' ? 'Sign In' : 'Create Account'
+            )}
           </button>
 
           {/* Social Login */}

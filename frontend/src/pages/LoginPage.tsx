@@ -1,18 +1,98 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { supabase } from '@/lib/supabaseClient';
+
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     setIsSubmitting(true);
-    // Giả lập submit
-    setTimeout(() => {
+
+    try {
+      // Validation cơ bản
+      if (!email.trim()) {
+        setError('Email is required.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!password) {
+        setError('Password is required.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Xác thực reCAPTCHA
+      if (!RECAPTCHA_SITE_KEY) {
+        setError('reCAPTCHA site key is not configured.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const token = await recaptchaRef.current?.executeAsync();
+      recaptchaRef.current?.reset();
+
+      if (!token) {
+        setError('reCAPTCHA verification failed. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!verifyResponse.ok) {
+        setError('Failed to verify reCAPTCHA. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        setError('reCAPTCHA verification failed. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Thực hiện đăng nhập
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSuccess('Login successful! Redirecting...');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
       setIsSubmitting(false);
-      alert('Login successful!');
-    }, 1500);
+    }
   };
 
   return (
@@ -26,6 +106,18 @@ export default function LoginPage() {
         <h2 className="text-4xl font-extrabold text-white text-center mb-6 tracking-tight select-none">
           Login
         </h2>
+
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="p-3 bg-red-500 bg-opacity-20 border border-red-400 text-red-300 rounded-lg text-sm text-center">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="p-3 bg-green-500 bg-opacity-20 border border-green-400 text-green-300 rounded-lg text-sm text-center">
+            {success}
+          </div>
+        )}
 
         {/* Email input with floating label */}
         <div className="relative">
@@ -87,35 +179,47 @@ export default function LoginPage() {
           <span className="absolute left-5 right-5 bottom-1 h-0.5 bg-green-400 scale-x-0 origin-left transition-transform duration-300 peer-focus:scale-x-100" />
         </div>
 
+        {/* reCAPTCHA - Invisible */}
+        {RECAPTCHA_SITE_KEY && (
+          <ReCAPTCHA
+            sitekey={RECAPTCHA_SITE_KEY}
+            size="invisible"
+            ref={recaptchaRef}
+          />
+        )}
+
         {/* Submit button */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed select-none"
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed select-none flex items-center justify-center space-x-2"
           aria-busy={isSubmitting}
         >
           {isSubmitting ? (
-            <svg
-              className="animate-spin h-6 w-6 mx-auto text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
+            <>
+              <svg
+                className="animate-spin h-6 w-6 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              <span>Signing In...</span>
+            </>
           ) : (
             'Login'
           )}
