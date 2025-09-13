@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-
-const RECAPTCHA_SITE_KEY = '6LfXtccrAAAAANX6qR1fs4WsrXD0VCrf_MMy4hpR'; // 
+// Lấy reCAPTCHA site key từ biến môi trường
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY; // Sử dụng import.meta.env cho Vite
+// Hoặc: const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY; // Nếu bạn dùng Next.js
 const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 const SignupPage = () => {
@@ -49,6 +50,13 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
+      // Kiểm tra xem RECAPTCHA_SITE_KEY đã được cấu hình chưa
+      if (!RECAPTCHA_SITE_KEY) {
+        setError('reCAPTCHA site key is not configured.');
+        setLoading(false);
+        return;
+      }
+
       const token = await recaptchaRef.current?.executeAsync();
       recaptchaRef.current?.reset();
 
@@ -96,8 +104,8 @@ const SignupPage = () => {
       // Optionally navigate or reset form here
       // navigate('/login');
 
-    } catch {
-      setError('An unexpected error occurred.');
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
@@ -229,11 +237,14 @@ const SignupPage = () => {
               </div>
 
               {/* reCAPTCHA */}
-              <ReCAPTCHA
-                sitekey={RECAPTCHA_SITE_KEY}
-                size="invisible"
-                ref={recaptchaRef}
-              />
+              {RECAPTCHA_SITE_KEY && ( // Chỉ render reCAPTCHA nếu site key tồn tại
+                <ReCAPTCHA
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  size="invisible"
+                  ref={recaptchaRef}
+                />
+              )}
+
 
               <Button
                 type="submit"
