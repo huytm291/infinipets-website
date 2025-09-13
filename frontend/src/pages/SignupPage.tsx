@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-g
+
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
