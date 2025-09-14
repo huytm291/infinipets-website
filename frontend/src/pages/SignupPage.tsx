@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,16 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import ReCAPTCHA from 'react-google-recaptcha';
-
+import { useRecaptcha } from '@/hooks/useRecaptcha';
+import RecaptchaWrapper from '@/components/RecaptchaWrapper';
 
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
-const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
-
 const SignupPage = () => {
   const navigate = useNavigate();
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { recaptchaRef, verifyRecaptcha, isConfigured } = useRecaptcha();
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -50,40 +48,14 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      // Kiểm tra xem RECAPTCHA_SITE_KEY đã được cấu hình chưa
-      if (!RECAPTCHA_SITE_KEY) {
-        setError('reCAPTCHA site key is not configured.');
-        setLoading(false);
-        return;
-      }
-
-      const token = await recaptchaRef.current?.executeAsync();
-      recaptchaRef.current?.reset();
-
-      if (!token) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!verifyResponse.ok) {
-        setError('Failed to verify reCAPTCHA. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      const verifyData = await verifyResponse.json();
-
-      if (!verifyData.success) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
+      // Xác thực reCAPTCHA nếu được cấu hình
+      if (isConfigured) {
+        const recaptchaResult = await verifyRecaptcha();
+        if (!recaptchaResult.success) {
+          setError(recaptchaResult.error || 'reCAPTCHA verification failed.');
+          setLoading(false);
+          return;
+        }
       }
 
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -100,9 +72,6 @@ const SignupPage = () => {
       setSuccess('Please check your email to verify your account.');
 
       // TODO: Lưu thêm username, phone nếu cần qua API hoặc Supabase function
-
-      // Optionally navigate or reset form here
-      // navigate('/login');
 
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
@@ -237,14 +206,11 @@ const SignupPage = () => {
               </div>
 
               {/* reCAPTCHA */}
-              {RECAPTCHA_SITE_KEY && ( // Chỉ render reCAPTCHA nếu site key tồn tại
-                <ReCAPTCHA
-                  sitekey={RECAPTCHA_SITE_KEY}
-                  size="invisible"
-                  ref={recaptchaRef}
-                />
-              )}
-
+              <RecaptchaWrapper
+                ref={recaptchaRef}
+                siteKey={RECAPTCHA_SITE_KEY}
+                size="invisible"
+              />
 
               <Button
                 type="submit"

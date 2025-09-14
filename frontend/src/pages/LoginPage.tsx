@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { supabase } from '@/lib/supabaseClient';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
+import RecaptchaWrapper from '@/components/RecaptchaWrapper';
 
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { recaptchaRef, verifyRecaptcha, isConfigured } = useRecaptcha();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,40 +35,14 @@ export default function LoginPage() {
         return;
       }
 
-      // Xác thực reCAPTCHA
-      if (!RECAPTCHA_SITE_KEY) {
-        setError('reCAPTCHA site key is not configured.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const token = await recaptchaRef.current?.executeAsync();
-      recaptchaRef.current?.reset();
-
-      if (!token) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!verifyResponse.ok) {
-        setError('Failed to verify reCAPTCHA. Please try again.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const verifyData = await verifyResponse.json();
-
-      if (!verifyData.success) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setIsSubmitting(false);
-        return;
+      // Xác thực reCAPTCHA nếu được cấu hình
+      if (isConfigured) {
+        const recaptchaResult = await verifyRecaptcha();
+        if (!recaptchaResult.success) {
+          setError(recaptchaResult.error || 'reCAPTCHA verification failed.');
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // Thực hiện đăng nhập
@@ -180,13 +154,11 @@ export default function LoginPage() {
         </div>
 
         {/* reCAPTCHA - Invisible */}
-        {RECAPTCHA_SITE_KEY && (
-          <ReCAPTCHA
-            sitekey={RECAPTCHA_SITE_KEY}
-            size="invisible"
-            ref={recaptchaRef}
-          />
-        )}
+        <RecaptchaWrapper
+          ref={recaptchaRef}
+          siteKey={RECAPTCHA_SITE_KEY}
+          size="invisible"
+        />
 
         {/* Submit button */}
         <button

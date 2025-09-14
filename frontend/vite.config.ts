@@ -13,14 +13,19 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  base: './', // Giúp load asset đúng khi deploy trên subfolder hoặc mở file trực tiếp
+  base: '/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: mode === 'development',
+    sourcemap: false,
     target: 'esnext',
     rollupOptions: {
       output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+        },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: ({ name }) => {
@@ -37,16 +42,16 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     watch: {
-      usePolling: true, // Giúp tránh lỗi khi chạy trong container hoặc môi trường mạng ảo
+      usePolling: true,
     },
-    host: true, // Cho phép truy cập từ bên ngoài (0.0.0.0)
-    strictPort: true, // Nếu port 5173 đang dùng thì báo lỗi, không tự đổi port
+    host: true,
+    strictPort: true,
     port: 5173,
     fs: {
-      strict: true, // Chỉ cho phép truy cập file trong root dự án
+      strict: true,
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'], // Tăng tốc dev server
+    include: ['react', 'react-dom'],
   },
 }));
