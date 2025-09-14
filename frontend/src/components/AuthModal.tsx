@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { X, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { supabase } from '@/lib/supabaseClient';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
+import RecaptchaWrapper from '@/components/RecaptchaWrapper';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,7 +11,6 @@ interface AuthModalProps {
 }
 
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-const RECAPTCHA_VERIFY_FUNCTION_URL = 'https://qrhtnntsdfsgzfkhohzp.supabase.co/functions/v1/verify-recaptcha';
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
@@ -18,7 +18,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { recaptchaRef, verifyRecaptcha, isConfigured } = useRecaptcha();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -66,40 +66,14 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
         return;
       }
 
-      // Xác thực reCAPTCHA cho cả login và register
-      if (!RECAPTCHA_SITE_KEY) {
-        setError('reCAPTCHA site key is not configured.');
-        setLoading(false);
-        return;
-      }
-
-      const token = await recaptchaRef.current?.executeAsync();
-      recaptchaRef.current?.reset();
-
-      if (!token) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      const verifyResponse = await fetch(RECAPTCHA_VERIFY_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!verifyResponse.ok) {
-        setError('Failed to verify reCAPTCHA. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      const verifyData = await verifyResponse.json();
-
-      if (!verifyData.success) {
-        setError('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
+      // Xác thực reCAPTCHA nếu được cấu hình
+      if (isConfigured) {
+        const recaptchaResult = await verifyRecaptcha();
+        if (!recaptchaResult.success) {
+          setError(recaptchaResult.error || 'reCAPTCHA verification failed.');
+          setLoading(false);
+          return;
+        }
       }
 
       // Thực hiện authentication
@@ -132,7 +106,6 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
         }
 
         setSuccess('Please check your email to verify your account.');
-        // TODO: Lưu thêm username nếu cần qua API hoặc Supabase function
       }
 
     } catch (err: any) {
@@ -264,13 +237,11 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) =
           )}
 
           {/* reCAPTCHA - Invisible cho cả login và register */}
-          {RECAPTCHA_SITE_KEY && (
-            <ReCAPTCHA
-              sitekey={RECAPTCHA_SITE_KEY}
-              size="invisible"
-              ref={recaptchaRef}
-            />
-          )}
+          <RecaptchaWrapper
+            ref={recaptchaRef}
+            siteKey={RECAPTCHA_SITE_KEY}
+            size="invisible"
+          />
 
           {/* Submit Button */}
           <button
